@@ -1,5 +1,73 @@
 #include "Window.h"
-// Creates GLFW window and OpenGL context.
-// Implemented as a singleton class. getWindow() returns the instance of the window.
-// Sets callback functions for input handling.
-// glfwInit(), glfwCreateWindow(), glfwSet...Callback(), gladLoadGLLoader() glfwMakeContextCurrent(), etc.
+
+#include <stdexcept>
+
+Window* Window::instance = nullptr;
+GLFWwindow* Window::window = nullptr;
+unsigned int Window::window_width = 1280;
+unsigned int Window::window_height = 720;
+
+Window::Window() {
+    glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+#ifdef __APPLE__
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
+
+    window = glfwCreateWindow(window_width, window_height, "Ascend And Fall", NULL, NULL);
+
+    if (window == NULL)
+    {
+        glfwTerminate();
+        throw std::runtime_error("Failed to create GLFW window");
+    }
+    glfwMakeContextCurrent(window);
+
+    // set callbacks here
+
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    {
+        throw std::runtime_error("Failed to initialize GLAD");
+    }
+
+    glEnable(GL_DEPTH_TEST);
+    //glEnable(GL_CULL_FACE);
+
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL); // Change to hidden after implementing custom cursor
+};
+Window* Window::getInstance() {
+    if (instance == nullptr) {
+        try {
+            instance = new Window();
+        }
+        catch (const std::runtime_error& e) {
+            // log e.what()
+            return nullptr;
+        }
+    }
+    return instance;
+};
+float Window::getAspectRatio() {
+    return (float)window_width / (float)window_height;
+};
+void Window::setDimensions(int width, int height) {
+    glViewport(0, 0, width, height);
+    window_width = width;
+    window_height = height;
+};
+
+bool Window::windowShouldClose() {
+    return glfwWindowShouldClose(window);
+};
+
+bool Window::isPressed(GLenum key) {
+    return glfwGetKey(window, key) == GLFW_PRESS;
+};
+
+Window::~Window() {
+    glfwDestroyWindow(window);
+    glfwTerminate();
+};
