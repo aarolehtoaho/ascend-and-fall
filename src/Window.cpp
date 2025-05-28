@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 
 #include "Window.h"
+#include "Logger.h"
 
 #include <stdexcept>
 
@@ -47,7 +48,8 @@ Window* Window::getInstance() {
             instance = new Window();
         }
         catch (const std::runtime_error& e) {
-            // log e.what()
+            Logger logger("debug.log");
+            logger.log(e.what());
             return nullptr;
         }
     }

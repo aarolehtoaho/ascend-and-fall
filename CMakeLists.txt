@@ -22,6 +22,9 @@ add_executable(AscendAndFall
     src/Window.cpp
     src/Utils.cpp
     src/Input.cpp
+    src/Shader.cpp
+    src/Camera.cpp
+    src/Texture.cpp
 )
 
 target_link_libraries(AscendAndFall 
