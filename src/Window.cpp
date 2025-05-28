@@ -3,13 +3,17 @@
 
 #include "Window.h"
 #include "Logger.h"
+#include "Callbacks.h"
 
 #include <stdexcept>
 
 Window* Window::instance = nullptr;
 GLFWwindow* Window::window = nullptr;
+Camera* Window::camera = nullptr;
 unsigned int Window::window_width = 1280;
 unsigned int Window::window_height = 720;
+double Window::mouse_x = 0;
+double Window::mouse_y = 0;
 
 Window::Window() {
     glfwInit();
@@ -30,15 +34,17 @@ Window::Window() {
     }
     glfwMakeContextCurrent(window);
 
-    // set callbacks here
-
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         throw std::runtime_error("Failed to initialize GLAD");
     }
 
+    camera = new Camera(glm::vec3(0.0f, 0.0f, 3.0f));
+
+    Callbacks::setCallbacks(window, camera);
+
     glEnable(GL_DEPTH_TEST);
-    //glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL); // Change to hidden after implementing custom cursor
 };
@@ -63,6 +69,10 @@ void Window::setDimensions(int width, int height) {
     window_width = width;
     window_height = height;
 };
+void Window::setMousePositions(double xpos, double ypos) {
+    mouse_x = xpos;
+    mouse_y = ypos;
+}
 
 bool Window::windowShouldClose() {
     return glfwWindowShouldClose(window);
