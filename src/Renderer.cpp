@@ -6,8 +6,8 @@
 #include "Renderer.h"
 #include "Texture.h"
 
-Renderer::Renderer(Camera& camera) {
-    this->camera = &camera;
+Renderer::Renderer(Camera *camera) {
+    this->camera = camera;
     init();
 };
 

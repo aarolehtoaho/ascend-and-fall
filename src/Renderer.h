@@ -23,7 +23,7 @@ private:
               float angle);
     Renderer();
 public:
-    Renderer(Camera& camera);
+    Renderer(Camera *camera);
     ~Renderer();
     void init();
     void drawSquare(Shader& shader, \
