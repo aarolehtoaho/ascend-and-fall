@@ -1,8 +1,8 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+struct GLFWwindow;
+typedef unsigned int GLenum;
 
 class Window {
     private:
@@ -17,6 +17,8 @@ class Window {
         static float getAspectRatio();
         static void setDimensions(int width, int height);
         static bool windowShouldClose();
+        static void closeWindow();
         static bool isPressed(GLenum key);
+        static void update();
 };
 #endif

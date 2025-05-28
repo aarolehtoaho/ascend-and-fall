@@ -20,6 +20,8 @@ add_executable(AscendAndFall
     src/Game.cpp
     src/Renderer.cpp
     src/Window.cpp
+    src/Utils.cpp
+    src/Input.cpp
 )
 
 target_link_libraries(AscendAndFall 

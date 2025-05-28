@@ -1,3 +1,6 @@
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
 #include "Window.h"
 
 #include <stdexcept>
@@ -62,10 +65,18 @@ void Window::setDimensions(int width, int height) {
 bool Window::windowShouldClose() {
     return glfwWindowShouldClose(window);
 };
+void Window::closeWindow() {
+    glfwSetWindowShouldClose(window, true);
+}
 
 bool Window::isPressed(GLenum key) {
     return glfwGetKey(window, key) == GLFW_PRESS;
 };
+
+void Window::update() {
+    glfwSwapBuffers(window);
+    glfwPollEvents();
+}
 
 Window::~Window() {
     glfwDestroyWindow(window);
