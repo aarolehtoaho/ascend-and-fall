@@ -2,7 +2,7 @@
 
 include/
 ├── glad/
-│ ├── include/glad.h
+│ ├── glad.h
 │ └── src/glad.c
 ├── glfw-windows-install/
 │ ├── include/

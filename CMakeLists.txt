@@ -6,17 +6,16 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_EXE_LINKER_FLAGS "-static")
 
 set(GLFW_DIR "${CMAKE_SOURCE_DIR}/include/glfw-windows-install")
-set(GLAD_DIR "${CMAKE_SOURCE_DIR}/include/glad")
 set(STB_DIR "${CMAKE_SOURCE_DIR}/include/stb")
 
-include_directories(${GLAD_DIR}/include)
 include_directories(${GLFW_DIR}/include)
 include_directories(${STB_DIR})
+include_directories(${CMAKE_SOURCE_DIR}/include)
 
 link_directories(${GLFW_DIR}/lib)
-add_library(glad STATIC ${GLAD_DIR}/src/glad.c)
 
-add_executable(ascendra 
+add_executable(AscendAndFall
+    ${CMAKE_SOURCE_DIR}/include/glad/src/glad.c
     src/main.cpp
     src/Game.cpp
     src/Renderer.cpp
