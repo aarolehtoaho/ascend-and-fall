@@ -19,7 +19,7 @@ int main() {
         logger.log("Failed to create window instance.");
         return -1;
     }
-    Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+    Camera* camera = window->getCamera();
     Renderer renderer(camera);
 
     Shader defaultShader("assets/shaders/shape_phong.vs", "assets/shaders/shape_phong.fs");
@@ -34,7 +34,7 @@ int main() {
     while (!Window::windowShouldClose()) {
         Utils::updateDeltaTime();
 
-        Input::processInput();
+        Input::processInput(camera);
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

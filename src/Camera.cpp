@@ -1,13 +1,15 @@
 #include "Camera.h"
 #include "Window.h"
 
+#include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 Camera::Camera(glm::vec3 position) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), \
                                      MovementSpeed(SPEED), \
                                      Zoom(ZOOM), \
                                      Position(position), \
-                                     Up(UP) {}
+                                     Up(glm::vec3(0.0f, 1.0f, 0.0f)), \
+                                     Right(glm::normalize(glm::cross(Front, Up))) {}
 glm::mat4 Camera::getViewMatrix() {
     return glm::lookAt(Position, Position + Front, Up);
 }
@@ -44,8 +46,8 @@ void Camera::processKeyboard(Camera_Movement direction, float deltaTime)
 
     glm::vec3 transform = glm::normalize(dirVec) * velocity;
 
-    if (transform.y < 0.0f)
-        transform.y = 0.0f;
+    //if (transform.y < 0.0f)
+    //    transform.y = 0.0f;
 
     Position += transform;
 }
