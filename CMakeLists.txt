@@ -1,19 +1,23 @@
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 cmake_minimum_required(VERSION 3.10)
 project(AscendAndFall)
 
 set(CMAKE_CXX_STANDARD 17)
-
-set(GLFW_DIR "./glfw-windows-install")
-
 set(CMAKE_EXE_LINKER_FLAGS "-static")
 
+set(GLFW_DIR "${CMAKE_SOURCE_DIR}/include/glfw-windows-install")
+set(GLAD_DIR "${CMAKE_SOURCE_DIR}/include/glad")
+set(STB_DIR "${CMAKE_SOURCE_DIR}/include/stb")
+
+include_directories(${GLAD_DIR}/include)
 include_directories(${GLFW_DIR}/include)
-include_directories(include)
+include_directories(${STB_DIR})
+
 link_directories(${GLFW_DIR}/lib)
+add_library(glad STATIC ${GLAD_DIR}/src/glad.c)
 
 add_executable(ascendra 
     src/main.cpp
-    src/glad.c
     src/Game.cpp
     src/Renderer.cpp
     src/Window.cpp
