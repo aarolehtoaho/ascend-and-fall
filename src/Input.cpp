@@ -12,13 +12,15 @@ void Input::processInput(Player *player) {
     }
 
     if (Window::isPressed(GLFW_KEY_W)) {
+        // jump
     }
     if (Window::isPressed(GLFW_KEY_A)) {
-        player->applyForce(glm::vec3(-2.0f, 0.0f, 0.0f));
+        player->applyForce(glm::vec3(-1.0f, 0.0f, 0.0f));
     }
     if (Window::isPressed(GLFW_KEY_S)) {
+        // crouch
     }
     if (Window::isPressed(GLFW_KEY_D)) {
-        player->applyForce(glm::vec3(2.0f, 0.0f, 0.0f));
+        player->applyForce(glm::vec3(1.0f, 0.0f, 0.0f));
     }
 }
