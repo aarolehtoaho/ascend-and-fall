@@ -11,8 +11,6 @@ private:
     Shader *shader;
     Texture *textureDiffuse;
     Texture *textureSpecular;
-    float height = 0.5f;
-    float width = 0.25f;
 public:
     Player(glm::vec3 position, Renderer *renderer, Shader *shader, Texture *diffuse, Texture *specular);
     void draw();

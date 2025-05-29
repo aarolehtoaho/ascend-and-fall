@@ -12,7 +12,7 @@ void Input::processInput(Player *player) {
     }
 
     if (Window::isPressed(GLFW_KEY_W)) {
-        // jump
+        player->setJumping(true);
     }
     if (Window::isPressed(GLFW_KEY_A)) {
         player->applyForce(glm::vec3(-1.0f, 0.0f, 0.0f));

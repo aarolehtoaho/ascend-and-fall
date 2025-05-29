@@ -4,6 +4,9 @@
 #include <glm/glm.hpp>
 
 extern const float PHYSICAL, POISON, ICE, FIRE, SOUL;
+extern const float FORCE_ADJUSTMENT;
+extern const glm::vec3 GRAVITY;
+extern const float GRAVITY_ADJUSTMENT;
 
 class Entity {
 private:
@@ -16,13 +19,29 @@ private:
     float health;
     float attackPower;
     float resistances[5] = {PHYSICAL, POISON, ICE, FIRE, SOUL};
+
+    float height;
+    float width;
+
+    bool jumping = false;
+    bool crouching = false;
 public:
-    Entity(glm::vec3 pos);
+    Entity(glm::vec3 position, float height, float width);
     void applyForce(glm::vec3 force);
     void applyResistanceForces(float deltaTime);
+    void applyGravity(float deltaTime);
     void update(float deltaTime);
+
     glm::vec3 getPosition() { return position; };
     float getMovementSpeed() { return movementSpeed; };
+    float getHeight() { return height; };
+    float getWidth() { return width; };
+    bool isJumping() { return jumping; };
+    bool isCrouching() { return crouching; };
+
+    void setJumping(bool jumping) { this->jumping = jumping; }
+    void setCrouching(bool crouching) { this->crouching = crouching; }
+
     virtual void draw() = 0;
 };
 
