@@ -4,7 +4,7 @@
 #include "Utils.h"
 #include "Window.h"
 
-void Input::processInput(Camera *camera) {
+void Input::processInput(Player *player) {
     float deltaTime = Utils::getDeltaTime();
 
     if (Window::isPressed(GLFW_KEY_ESCAPE)) {
@@ -12,15 +12,13 @@ void Input::processInput(Camera *camera) {
     }
 
     if (Window::isPressed(GLFW_KEY_W)) {
-        camera->processKeyboard(UP, deltaTime);
     }
     if (Window::isPressed(GLFW_KEY_A)) {
-        camera->processKeyboard(LEFT, deltaTime);
+        player->applyForce(glm::vec3(-2.0f, 0.0f, 0.0f));
     }
     if (Window::isPressed(GLFW_KEY_S)) {
-        camera->processKeyboard(DOWN, deltaTime);
     }
     if (Window::isPressed(GLFW_KEY_D)) {
-        camera->processKeyboard(RIGHT, deltaTime);
+        player->applyForce(glm::vec3(2.0f, 0.0f, 0.0f));
     }
 }

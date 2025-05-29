@@ -26,6 +26,8 @@ add_executable(AscendAndFall
     src/Camera.cpp
     src/Texture.cpp
     src/Callbacks.cpp
+    src/Entity.cpp
+    src/Player.cpp
 )
 
 target_link_libraries(AscendAndFall 

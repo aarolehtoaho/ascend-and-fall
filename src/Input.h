@@ -1,12 +1,12 @@
 #ifndef INPUT_H
 #define INPUT_H
 
-#include "Camera.h"
+#include "Player.h"
 
 class Input {
     private:
         Input();
     public:
-        static void processInput(Camera *camera);
+        static void processInput(Player *player);
 };
 #endif
