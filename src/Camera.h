@@ -3,16 +3,6 @@
 
 #include <glm/glm.hpp>
 
-enum Camera_Movement {
-    FORWARD,
-    BACKWARD,
-    LEFT,
-    RIGHT,
-    UP,
-    DOWN
-};
-
-const float SPEED = 2.5f;
 const float ZOOM  = 45.0f;
 
 class Camera {
@@ -22,7 +12,6 @@ private:
     glm::vec3 Up;
     glm::vec3 Right;
 
-    float MovementSpeed;
     float Zoom;
 
     Camera();
@@ -33,7 +22,8 @@ public:
     glm::mat4 getViewMatrix();
     glm::mat4 getProjectionMatrix();
 
-    void processKeyboard(Camera_Movement direction, float deltaTime);
     void processMouseScroll(float yoffset);
+
+    void moveCamera(glm::vec3 targetPosition, float speed, float deltaTime);
 };
 #endif
