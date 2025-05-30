@@ -11,18 +11,40 @@ Entity::Entity(glm::vec3 position, float height, float width) \
 }
 
 void Entity::applyForce(glm::vec3 force) {
+    // Used for continuous forces to apply acceleration.
+    // Acceleration is reset to zero after each update.
     acceleration += (FORCE_ADJUSTMENT * force) / mass;
 }
-void Entity::applyResistanceForces(float deltaTime) {
+void Entity::applyImpulse(glm::vec3 impulse) {
+    // Used for instantaneous forces, such as a jump or a hit.
+    // Impulse is applied directly to the velocity.
+    velocity += (FORCE_ADJUSTMENT * impulse) / mass;
+}
+void Entity::applyFriction(float deltaTime) {
     float resistanceMagnitude = mass * deltaTime;
-    velocity -= velocity * resistanceMagnitude;
+    velocity.x -= velocity.x * resistanceMagnitude;
 }
 void Entity::applyGravity(float deltaTime) {
     applyForce(GRAVITY * mass * deltaTime);
 }
+void Entity::applyGravityInRope(float deltaTime, glm::vec3 ropeDirection) {
+    // Gravity component perpendicular to the rope direction
+    // This is applied when hanging from a rope
+    bool aboveRopeAttachment = ropeDirection.y >= 0.0f;
+    if (aboveRopeAttachment) {
+        // Gravity acts normally above the rope attachment point
+        applyGravity(deltaTime);
+        return;
+    }
+
+    glm::vec3 gravityComponent = glm::vec3(-GRAVITY.y * ropeDirection.x * ropeDirection.y, \
+                                           -GRAVITY.y * (ropeDirection.y * ropeDirection.y - 1), \
+                                           0.0f);                        
+    applyForce(gravityComponent * mass * deltaTime);
+}
+
 void Entity::update(float deltaTime) {
     velocity += acceleration * deltaTime;
-
     if (velocity.x > movementSpeed) {
         velocity.x = movementSpeed;
     } else if (velocity.x < -movementSpeed) {
@@ -36,8 +58,9 @@ void Entity::update(float deltaTime) {
         velocity.y = 0.0f;
     }
 
-    if (acceleration.x == 0.0f || (velocity.x * acceleration.x < 0.0f)) {
-        applyResistanceForces(deltaTime);
+    bool shouldApplyFriction = acceleration.x == 0.0f || (velocity.x * acceleration.x < 0.0f);
+    if (shouldApplyFriction) {
+        applyFriction(deltaTime);
     }
 
     acceleration = glm::vec3(0.0f);

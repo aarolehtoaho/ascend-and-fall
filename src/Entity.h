@@ -28,8 +28,10 @@ private:
 public:
     Entity(glm::vec3 position, float height, float width);
     void applyForce(glm::vec3 force);
-    void applyResistanceForces(float deltaTime);
+    void applyImpulse(glm::vec3 impulse);
+    void applyFriction(float deltaTime);
     void applyGravity(float deltaTime);
+    void applyGravityInRope(float deltaTime, glm::vec3 ropeDirection);
     void update(float deltaTime);
 
     glm::vec3 getPosition() { return position; };
