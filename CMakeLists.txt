@@ -7,12 +7,18 @@ set(CMAKE_EXE_LINKER_FLAGS "-static")
 
 set(GLFW_DIR "${CMAKE_SOURCE_DIR}/include/glfw-windows-install")
 set(STB_DIR "${CMAKE_SOURCE_DIR}/include/stb")
+set(ASSIMP_DIR "${CMAKE_SOURCE_DIR}/include/assimp/build-windows/install")
+set(ZLIB_DIR "${CMAKE_SOURCE_DIR}/include/zlib-mingw-install")
 
 include_directories(${GLFW_DIR}/include)
 include_directories(${STB_DIR})
 include_directories(${CMAKE_SOURCE_DIR}/include)
+include_directories(${ASSIMP_DIR}/include)
+include_directories(${ZLIB_DIR}/include)
 
 link_directories(${GLFW_DIR}/lib)
+link_directories(${ASSIMP_DIR}/lib)
+link_directories(${ZLIB_DIR}/lib)
 
 add_executable(AscendAndFall
     ${CMAKE_SOURCE_DIR}/include/glad/src/glad.c
@@ -28,6 +34,8 @@ add_executable(AscendAndFall
     src/Callbacks.cpp
     src/Entity.cpp
     src/Player.cpp
+    src/Mesh.cpp
+    src/Model.cpp
 )
 
 target_link_libraries(AscendAndFall 
@@ -36,4 +44,6 @@ target_link_libraries(AscendAndFall
     gdi32
     user32
     shell32
+    assimp
+    z
 )
