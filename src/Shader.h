@@ -40,5 +40,7 @@ public:
                       glm::vec3 specular, \
                       glm::vec3 attenuation, \
                       glm::vec2 cutOffs) const;
+
+    unsigned int getId() { return ID; };
 };
 #endif
