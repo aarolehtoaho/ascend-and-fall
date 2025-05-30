@@ -25,6 +25,7 @@ class Window {
         static bool windowShouldClose();
         static void closeWindow();
         static bool isPressed(GLenum key);
+        static bool isReleased(GLenum key);
         static void update();
 }; 
 #endif

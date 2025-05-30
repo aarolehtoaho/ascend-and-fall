@@ -84,6 +84,9 @@ void Window::closeWindow() {
 bool Window::isPressed(GLenum key) {
     return glfwGetKey(window, key) == GLFW_PRESS;
 };
+bool Window::isReleased(GLenum key) {
+    return glfwGetKey(window, key) == GLFW_RELEASE;
+};
 
 void Window::update() {
     glfwSwapBuffers(window);

@@ -37,9 +37,9 @@ void Entity::applyGravityInRope(float deltaTime, glm::vec3 ropeDirection) {
         return;
     }
 
-    glm::vec3 gravityComponent = glm::vec3(-GRAVITY.y * ropeDirection.x * ropeDirection.y, \
-                                           -GRAVITY.y * (ropeDirection.y * ropeDirection.y - 1), \
-                                           0.0f);                        
+    glm::vec3 gravityComponent = glm::vec3( -GRAVITY.y * ropeDirection.x * ropeDirection.y, \
+                                            -GRAVITY.y * (ropeDirection.y * ropeDirection.y - 1), \
+                                            0.0f );                        
     applyForce(gravityComponent * mass * deltaTime);
 }
 
@@ -75,5 +75,5 @@ const float FIRE = 0;
 const float SOUL = 0;
 
 const float FORCE_ADJUSTMENT = 50.0f;
-const float GRAVITY_ADJUSTMENT = 2.0f;
+const float GRAVITY_ADJUSTMENT = 1.5f;
 const glm::vec3 GRAVITY = glm::vec3(0.0f, -9.81f, 0.0f) * GRAVITY_ADJUSTMENT;

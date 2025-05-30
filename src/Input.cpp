@@ -4,6 +4,8 @@
 #include "Utils.h"
 #include "Window.h"
 
+bool Input::hasReleasedW = true;
+
 void Input::processInput(Player *player) {
     float deltaTime = Utils::getDeltaTime();
 
@@ -11,7 +13,8 @@ void Input::processInput(Player *player) {
         Window::closeWindow();
     }
 
-    if (Window::isPressed(GLFW_KEY_W) && !player->isJumping()) {
+    if (Window::isPressed(GLFW_KEY_W) && hasReleasedW && !player->isJumping()) {
+        hasReleasedW = false;
         player->applyImpulse(glm::vec3(0.0f, 1.0f, 0.0f));
         player->setJumping(true);
     }
@@ -23,5 +26,8 @@ void Input::processInput(Player *player) {
     }
     if (Window::isPressed(GLFW_KEY_D)) {
         player->applyForce(glm::vec3(1.0f, 0.0f, 0.0f));
+    }
+    if (Window::isReleased(GLFW_KEY_W)) {
+        hasReleasedW = true;
     }
 }
