@@ -30,8 +30,8 @@ private:
     float attackPower;
     float resistances[5] = {PHYSICAL, POISON, ICE, FIRE, SOUL};
 
-    float height;
-    float width;
+    //float height;
+    //float width;
 
     bool jumping = false;
     bool crouching = false;
@@ -39,7 +39,7 @@ protected:
     Model* getModel() { return model; }
     LookingDirection lookingDirection = RIGHT;
 public:
-    Entity(glm::vec3 position, Model *model, float height, float width);
+    Entity(glm::vec3 position, Model *glLightModeli);
     void applyForce(glm::vec3 force);
     void applyImpulse(glm::vec3 impulse);
     void applyFriction(float deltaTime);
@@ -49,8 +49,8 @@ public:
 
     glm::vec3 getPosition() { return position; };
     float getMovementSpeed() { return movementSpeed; };
-    float getHeight() { return height; };
-    float getWidth() { return width; };
+    //float getHeight() { return height; };
+    //float getWidth() { return width; };
     bool isJumping() { return jumping; };
     bool isCrouching() { return crouching; };
 

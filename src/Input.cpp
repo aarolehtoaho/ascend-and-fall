@@ -16,7 +16,7 @@ void Input::processInput(Player *player) {
 
     if (Window::isPressed(GLFW_KEY_W) && hasReleasedW && !player->isJumping()) {
         hasReleasedW = false;
-        player->applyImpulse(glm::vec3(0.0f, 1.0f, 0.0f));
+        player->applyImpulse(glm::vec3(0.0f, 1.2f, 0.0f));
         player->setJumping(true);
     }
     if (Window::isPressed(GLFW_KEY_A)) {

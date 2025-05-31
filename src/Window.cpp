@@ -39,7 +39,7 @@ Window::Window() {
         throw std::runtime_error("Failed to initialize GLAD");
     }
 
-    camera = new Camera(glm::vec3(0.0f, 0.0f, 7.0f));
+    camera = new Camera(glm::vec3(0.0f, 0.0f, 15.0f));
 
     Callbacks::setCallbacks(window, camera);
 

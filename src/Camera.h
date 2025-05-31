@@ -3,7 +3,7 @@
 
 #include <glm/glm.hpp>
 
-const float ZOOM  = 45.0f;
+const float ZOOM  = 70.0f;
 
 class Camera {
 private:

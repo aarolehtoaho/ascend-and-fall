@@ -19,10 +19,10 @@ glm::mat4 Camera::getProjectionMatrix() {
 void Camera::processMouseScroll(float yoffset)
 {
     Zoom -= (float)yoffset;
-    if (Zoom < 10.0f)
-        Zoom = 10.0f;
-    if (Zoom > 60.0f)
-        Zoom = 60.0f;
+    if (Zoom < 20.0f)
+        Zoom = 20.0f;
+    if (Zoom > 90.0f)
+        Zoom = 90.0f;
 }
 void Camera::moveCamera(glm::vec3 targetPosition, float speed, float deltaTime) {
     glm::vec3 direction = (targetPosition - Position); // No normalization for acceleration based on distance

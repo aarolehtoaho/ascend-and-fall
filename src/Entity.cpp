@@ -1,12 +1,12 @@
 #include "Entity.h"
 #include "Shader.h"
 
-Entity::Entity(glm::vec3 position, Model *model, float height, float width) \
-             : position(position), model(model), height(height), width(width) {
+Entity::Entity(glm::vec3 position, Model *model) \
+             : position(position), model(model) {
     velocity = glm::vec3(0.0f);
     acceleration = glm::vec3(0.0f);
     mass = 10.0f;
-    movementSpeed = 1.5f;
+    movementSpeed = 6.0f;
     health = 100.0f;
     attackPower = 10.0f;
 }
@@ -53,9 +53,9 @@ void Entity::update(float deltaTime) {
     }
 
     position += velocity * deltaTime;
-    if (position.y <= 0.0f) {
+    if (position.y <= 2.5f) {
         jumping = false;
-        position.y = 0.0f;
+        position.y = 2.5f;
         velocity.y = 0.0f;
     }
 
@@ -81,6 +81,6 @@ const float ICE = 0;
 const float FIRE = 0;
 const float SOUL = 0;
 
-const float FORCE_ADJUSTMENT = 50.0f;
+const float FORCE_ADJUSTMENT = 120.0f;
 const float GRAVITY_ADJUSTMENT = 1.5f;
 const glm::vec3 GRAVITY = glm::vec3(0.0f, -9.81f, 0.0f) * GRAVITY_ADJUSTMENT;
