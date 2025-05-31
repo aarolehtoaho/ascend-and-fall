@@ -11,6 +11,8 @@
 #include "Texture.h"
 #include "Player.h"
 #include "Model.h"
+#include "Animation.h"
+#include "Animator.h"
 
 int main() {
     Logger logger("debug.log");
@@ -34,8 +36,8 @@ int main() {
 
     Player player(glm::vec3(1.0f), &renderer, &defaultShader, &playerDiffuse, &containerSpecular);
 
-    Model backpack("assets/models/backpack/backpack.obj");
-    
+    Model testModel("assets/models/backpack/backpack.obj");
+
     while (!Window::windowShouldClose()) {
         Utils::updateDeltaTime();
         float deltaTime = Utils::getDeltaTime();
@@ -69,7 +71,7 @@ int main() {
         modelShader.setSpotLight(glm::vec3(0.0f, 0.0f, -7.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(1.0f, 0.09f, 0.032f), glm::vec2(glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(15.0f))));
         modelShader.setFloat("shininess", 0.5f * 128.0f);
 
-        backpack.Draw(modelShader, glm::vec3(4.0f, 2.0f, -3.0f));
+        testModel.draw(modelShader, glm::vec3(2.0f, 1.0f, 0.0f));
 
         Window::update();
     }

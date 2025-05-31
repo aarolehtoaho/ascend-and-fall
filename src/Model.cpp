@@ -1,11 +1,14 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "stb_image.h"
+#include "AssimpGLMHelpers.h"
 
 #include "Model.h"
 #include "Window.h"
 #include "Camera.h"
-
+#include <assimp/scene.h>
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
 
 Logger Model::logger("debug.log");
 
@@ -13,11 +16,12 @@ Model::Model(std::string const &path, bool gamma) : gammaCorrection(gamma) {
     stbi_set_flip_vertically_on_load(true);
     loadModel(path);
 }
-void Model::Draw(Shader &shader, glm::vec3 position, float angle, glm::vec3 rotation, glm::vec3 scale) {
+void Model::draw(Shader &shader, glm::vec3 position, float angle, glm::vec3 rotation, glm::vec3 scale) {
     shader.use();
 
     Camera* camera = Window::getCamera();
 
+    shader.setBool("isAnimated", false);
     shader.setVec3("viewPos", camera->getPosition());
     shader.setMat4("projection", camera->getProjectionMatrix());
     shader.setMat4("view", camera->getViewMatrix());
@@ -31,6 +35,10 @@ void Model::Draw(Shader &shader, glm::vec3 position, float angle, glm::vec3 rota
 
     shader.setMat3("normalMatrix", glm::transpose(glm::inverse(glm::mat3(model))));
 
+    drawMeshes(shader);
+}
+
+void Model::drawMeshes(Shader &shader) {
     for(unsigned int i = 0; i < meshes.size(); i++)
         meshes[i].draw(shader);
 }
@@ -72,58 +80,26 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene) {
     std::vector<unsigned int> indices;
     std::vector<MeshTexture> textures;
 
-    // walk through each of the mesh's vertices
-    for(unsigned int i = 0; i < mesh->mNumVertices; i++)
+    for (unsigned int i = 0; i < mesh->mNumVertices; i++)
     {
         Vertex vertex;
-        glm::vec3 vector;
-        // positions
-        vector.x = mesh->mVertices[i].x;
-        vector.y = mesh->mVertices[i].y;
-        vector.z = mesh->mVertices[i].z;
-        vertex.Position = vector;
-        // normals
-        if (mesh->HasNormals())
-        {
-            vector.x = mesh->mNormals[i].x;
-            vector.y = mesh->mNormals[i].y;
-            vector.z = mesh->mNormals[i].z;
-            vertex.Normal = vector;
-        }
-        // texture coordinates
-        if(mesh->mTextureCoords[0])
+        SetVertexBoneDataToDefault(vertex);
+        vertex.Position = AssimpGLMHelpers::GetGLMVec(mesh->mVertices[i]);
+        vertex.Normal = AssimpGLMHelpers::GetGLMVec(mesh->mNormals[i]);
+        
+        if (mesh->mTextureCoords[0])
         {
             glm::vec2 vec;
-            vec.x = mesh->mTextureCoords[0][i].x; 
+            vec.x = mesh->mTextureCoords[0][i].x;
             vec.y = mesh->mTextureCoords[0][i].y;
             vertex.TexCoords = vec;
-
-            // tangent
-            if (mesh->mTangents) {
-                vector.x = mesh->mTangents[i].x;
-                vector.y = mesh->mTangents[i].y;
-                vector.z = mesh->mTangents[i].z;
-                vertex.Tangent = vector;
-            } else {
-                vertex.Tangent = glm::vec3(0.0f);
-            }
-
-            // bitangent
-            if (mesh->mBitangents) {
-                vector.x = mesh->mBitangents[i].x;
-                vector.y = mesh->mBitangents[i].y;
-                vector.z = mesh->mBitangents[i].z;
-                vertex.Bitangent = vector;
-            } else {
-                vertex.Bitangent = glm::vec3(0.0f);
-            }
         }
         else
             vertex.TexCoords = glm::vec2(0.0f, 0.0f);
 
         vertices.push_back(vertex);
     }
-    // now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
+
     for(unsigned int i = 0; i < mesh->mNumFaces; i++)
     {
         aiFace face = mesh->mFaces[i];
@@ -190,6 +166,58 @@ std::vector<MeshTexture> Model::loadMaterialTextures(aiMaterial *mat, aiTextureT
         }
     }
     return textures;
+}
+
+void Model::SetVertexBoneDataToDefault(Vertex& vertex) {
+    for (int i = 0; i < MAX_BONE_INFLUENCE; i++) {
+        vertex.m_BoneIDs[i] = -1;
+        vertex.m_Weights[i] = 0.0f;
+    }
+}
+
+void Model::SetVertexBoneData(Vertex& vertex, int boneID, float weight) {
+    for (int i = 0; i < MAX_BONE_INFLUENCE; ++i)
+    {
+        if (vertex.m_BoneIDs[i] < 0)
+        {
+            vertex.m_Weights[i] = weight;
+            vertex.m_BoneIDs[i] = boneID;
+            break;
+        }
+    }
+}
+
+void Model::ExtractBoneWeightForVertices(std::vector<Vertex>& vertices, aiMesh* mesh, const aiScene* scene) {
+    for (int boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex)
+    {
+        int boneID = -1;
+        std::string boneName = mesh->mBones[boneIndex]->mName.C_Str();
+        if (m_BoneInfoMap.find(boneName) == m_BoneInfoMap.end())
+        {
+            BoneInfo newBoneInfo;
+            newBoneInfo.id = m_BoneCounter;
+            newBoneInfo.offset = AssimpGLMHelpers::ConvertMatrixToGLMFormat(
+                mesh->mBones[boneIndex]->mOffsetMatrix);
+            m_BoneInfoMap[boneName] = newBoneInfo;
+            boneID = m_BoneCounter;
+            m_BoneCounter++;
+        }
+        else
+        {
+            boneID = m_BoneInfoMap[boneName].id;
+        }
+        assert(boneID != -1);
+        auto weights = mesh->mBones[boneIndex]->mWeights;
+        int numWeights = mesh->mBones[boneIndex]->mNumWeights;
+
+        for (int weightIndex = 0; weightIndex < numWeights; ++weightIndex)
+        {
+            int vertexId = weights[weightIndex].mVertexId;
+            float weight = weights[weightIndex].mWeight;
+            assert(vertexId <= vertices.size());
+            SetVertexBoneData(vertices[vertexId], boneID, weight);
+        }
+    }
 }
 
 unsigned int TextureFromFile(const char *path, const std::string &directory, bool gamma)

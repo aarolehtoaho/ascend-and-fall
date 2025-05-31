@@ -8,3 +8,4 @@ include/zlib-mingw-install
 build/windows
 .vscode
 debug.log
+assets/models/testmodel
