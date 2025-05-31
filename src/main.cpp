@@ -11,8 +11,9 @@
 #include "Texture.h"
 #include "Player.h"
 #include "Model.h"
-#include "Animation.h"
-#include "Animator.h"
+#include "Tile.h"
+//#include "Animation.h"
+//#include "Animator.h"
 
 int main() {
     Logger logger("debug.log");
@@ -33,7 +34,13 @@ int main() {
     Texture containerSpecular("assets/textures/container_specular.png");
 
     Model playerModel("assets/models/player/player_texture.obj");
-    Player player(glm::vec3(2.0f, 2.0f, 0.0f), &playerModel, &modelShader);
+    Player player(glm::vec3(0.0f, 5.0f, 0.0f), &playerModel, &modelShader);
+
+    Model testModel("assets/models/testmodel/testCube/testCube.obj");
+
+    Tile tile1(0, 0, glm::vec2(1.0f, 1.0f), TILE_SOLID, &testModel);
+    Tile tile2(1, 1, glm::vec2(1.0f, 1.0f), TILE_SOLID, &testModel);
+    Tile tile3(-1, 0, glm::vec2(1.0f, 1.0f), TILE_SOLID, &testModel);
 
     glDisable(GL_CULL_FACE);
 
@@ -56,12 +63,16 @@ int main() {
         defaultShader.setPointLight(0, glm::vec3(1.0f), glm::vec3(0.05f), glm::vec3(0.8f), glm::vec3(1.0f), glm::vec3(1.0f, 0.09f, 0.032f));
         defaultShader.setSpotLight(glm::vec3(-3.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(1.0f, 0.09f, 0.032f), glm::vec2(glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(15.0f))));
         
-        renderer.drawCube(defaultShader, glm::vec3(0.0f), glm::vec3(0.5f));
-        renderer.drawCube(defaultShader, glm::vec3(0.5f, 0.0f, 0.0f), glm::vec3(0.5f));
+        renderer.drawCube(defaultShader, glm::vec3(-4.0f, 0.0f, 0.0f), glm::vec3(0.5f));
+        renderer.drawCube(defaultShader, glm::vec3(-3.5f, 0.0f, 0.0f), glm::vec3(0.5f));
 
         player.draw();
         player.update(deltaTime);
         camera->moveCamera(player.getPosition(), player.getMovementSpeed() + 1.0f, deltaTime);
+
+        tile1.render(&modelShader);
+        tile2.render(&modelShader);
+        tile3.render(&modelShader);
 
         Window::update();
     }

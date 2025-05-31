@@ -24,6 +24,7 @@ add_executable(AscendAndFall
     ${CMAKE_SOURCE_DIR}/include/glad/src/glad.c
     src/main.cpp
     src/Game.cpp
+    src/Level.cpp
     src/Renderer.cpp
     src/Window.cpp
     src/Utils.cpp
@@ -36,6 +37,7 @@ add_executable(AscendAndFall
     src/Player.cpp
     src/Mesh.cpp
     src/Model.cpp
+    src/Tile.cpp
 )
 
 target_link_libraries(AscendAndFall 
