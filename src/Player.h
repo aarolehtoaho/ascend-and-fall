@@ -1,18 +1,14 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 #include "Entity.h"
-#include "Renderer.h"
 #include "Shader.h"
-#include "Texture.h"
 
+class Model;
 class Player : public Entity {
 private:
-    Renderer *renderer;
     Shader *shader;
-    Texture *textureDiffuse;
-    Texture *textureSpecular;
 public:
-    Player(glm::vec3 position, Renderer *renderer, Shader *shader, Texture *diffuse, Texture *specular);
+    Player(glm::vec3 position, Model *model, Shader *shader);
     void draw();
 };
 #endif

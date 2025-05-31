@@ -1,7 +1,8 @@
 #include "Entity.h"
+#include "Shader.h"
 
-Entity::Entity(glm::vec3 position, float height, float width) \
-             : position(position), height(height), width(width) {
+Entity::Entity(glm::vec3 position, Model *model, float height, float width) \
+             : position(position), model(model), height(height), width(width) {
     velocity = glm::vec3(0.0f);
     acceleration = glm::vec3(0.0f);
     mass = 10.0f;
@@ -52,7 +53,7 @@ void Entity::update(float deltaTime) {
     }
 
     position += velocity * deltaTime;
-    if (position.y < 0.0f) {
+    if (position.y <= 0.0f) {
         jumping = false;
         position.y = 0.0f;
         velocity.y = 0.0f;
@@ -66,6 +67,12 @@ void Entity::update(float deltaTime) {
     acceleration = glm::vec3(0.0f);
     
     applyGravity(deltaTime);
+
+    if (velocity.x < 0.0f) {
+        lookingDirection = LEFT;
+    } else if (velocity.x > 0.0f) {
+        lookingDirection = RIGHT;
+    }
 }
 
 const float PHYSICAL = 0;
