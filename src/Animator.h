@@ -35,6 +35,11 @@ public:
 	}
 
 	void CalculateBoneTransform(const AssimpNodeData* node, glm::mat4 parentTransform){
+		assert(node);
+		if (!m_CurrentAnimation) {
+			return;
+		}
+
 		std::string nodeName = node->name;
 		glm::mat4 nodeTransform = node->transformation;
 

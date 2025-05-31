@@ -38,6 +38,8 @@ public:
 		m_ID(ID),
 		m_LocalTransform(1.0f)
 	{
+		assert(channel);
+
 		m_NumPositions = channel->mNumPositionKeys;
 
 		for (int positionIndex = 0; positionIndex < m_NumPositions; ++positionIndex)

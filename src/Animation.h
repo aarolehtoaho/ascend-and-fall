@@ -4,6 +4,7 @@
 #include "Model.h"
 #include "Bone.h"
 #include "Animdata.h"
+#include "Logger.h"
 
 #include <assimp/scene.h>
 #include <assimp/Importer.hpp>
@@ -28,7 +29,17 @@ public:
 	{
 		Assimp::Importer importer;
 		const aiScene* scene = importer.ReadFile(animationPath, aiProcess_Triangulate);
-		assert(scene && scene->mRootNode);
+		
+		Logger logger("debug.log");
+		if (!scene || !scene->mRootNode) {
+			logger.log("Assimp error: " + std::string(importer.GetErrorString()));
+			throw std::runtime_error("Failed to load animation file or root node missing: " + animationPath);
+		}
+		if (scene->mNumAnimations == 0) {
+			logger.log("No animations found in file: " + animationPath);
+			throw std::runtime_error("No animations found in file: " + animationPath);
+		}
+
 		auto animation = scene->mAnimations[0];
 		m_Duration = animation->mDuration;
 		m_TicksPerSecond = animation->mTicksPerSecond;
@@ -66,6 +77,12 @@ public:
 private:
 	void ReadMissingBones(const aiAnimation* animation, Model& model)
 	{
+		assert(animation);
+		assert(animation->mNumChannels > 0);
+		assert(model.GetBoneInfoMap().size() > 0);
+		assert(model.GetBoneCount() >= 0);
+		assert(model.GetBoneCount() < 100);
+
 		int size = animation->mNumChannels;
 
 		auto& boneInfoMap = model.GetBoneInfoMap();//getting m_BoneInfoMap from Model class
