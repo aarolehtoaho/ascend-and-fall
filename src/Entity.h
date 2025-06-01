@@ -35,6 +35,8 @@ private:
 
     bool jumping = false;
     bool crouching = false;
+
+    void checkMapBounds();
 protected:
     Model* getModel() { return model; }
     LookingDirection lookingDirection = RIGHT;

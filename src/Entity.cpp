@@ -53,11 +53,8 @@ void Entity::update(float deltaTime) {
     }
 
     position += velocity * deltaTime;
-    if (position.y <= 2.5f) {
-        jumping = false;
-        position.y = 2.5f;
-        velocity.y = 0.0f;
-    }
+
+    checkMapBounds();
 
     bool shouldApplyFriction = acceleration.x == 0.0f || (velocity.x * acceleration.x < 0.0f);
     if (shouldApplyFriction) {
@@ -72,6 +69,21 @@ void Entity::update(float deltaTime) {
         lookingDirection = LEFT;
     } else if (velocity.x > 0.0f) {
         lookingDirection = RIGHT;
+    }
+}
+
+void Entity::checkMapBounds() {
+    if (position.y <= 2.5f) {
+        jumping = false;
+        position.y = 2.5f;
+        velocity.y = 0.0f;
+    }
+    if (position.x < -123.0f) {
+        position.x = -123.0f;
+        velocity.x = 0.0f;
+    } else if (position.x > 123.0f) {
+        position.x = 123.0f;
+        velocity.x = 0.0f;
     }
 }
 
