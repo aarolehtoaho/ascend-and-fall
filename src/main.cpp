@@ -32,6 +32,8 @@ int main() {
 
     Texture container("assets/textures/container.png");
     Texture containerSpecular("assets/textures/container_specular.png");
+    Texture background_forest("assets/textures/background_forest.png");
+    Texture no_specular("assets/textures/no_specular.png");
 
     Model playerModel("assets/models/player/player_texture.obj");
     Player player(glm::vec3(0.0f, 5.0f, 0.0f), &playerModel, &modelShader);
@@ -41,8 +43,8 @@ int main() {
     Tile tile1(0, 0, glm::vec2(1.0f, 1.0f), TILE_SOLID, &testModel);
     Tile tile2(1, 1, glm::vec2(1.0f, 1.0f), TILE_SOLID, &testModel);
     Tile tile3(-1, 0, glm::vec2(1.0f, 1.0f), TILE_SOLID, &testModel);
-
-    glDisable(GL_CULL_FACE);
+    Tile tile4(-123, 0, glm::vec2(1.0f, 1.0f), TILE_SOLID, &testModel);
+    Tile tile5(123, 0, glm::vec2(1.0f, 1.0f), TILE_SOLID, &testModel);
 
     while (!Window::windowShouldClose()) {
         Utils::updateDeltaTime();
@@ -54,6 +56,17 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         defaultShader.use();
+
+        defaultShader.setInt("material.diffuse", background_forest.getUnit());
+        defaultShader.setInt("material.specular", no_specular.getUnit());
+        background_forest.bind();
+        no_specular.bind();
+
+        defaultShader.setDirLight(glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.05f), glm::vec3(1.0f), glm::vec3(0.0f));
+        defaultShader.setSpotLight(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(1.0f, 0.09f, 0.032f), glm::vec2(glm::cos(glm::radians(0.0f)), glm::cos(glm::radians(0.0f))));
+
+        renderer.drawSquare(defaultShader, glm::vec3(0.0f, 200.0f, -100.0f), glm::vec3(600.0f, 600.0f, 1.0f));
+
         defaultShader.setInt("material.diffuse", container.getUnit());
         defaultShader.setInt("material.specular", containerSpecular.getUnit());        
         container.bind();
@@ -73,6 +86,8 @@ int main() {
         tile1.render(&modelShader);
         tile2.render(&modelShader);
         tile3.render(&modelShader);
+        tile4.render(&modelShader);
+        tile5.render(&modelShader);
 
         Window::update();
     }

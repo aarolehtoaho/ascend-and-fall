@@ -1,11 +1,11 @@
+.vscode
+assets/models/testmodel
+build/windows
+include/assimp
 include/glad
 include/glfw-windows-install
 include/glm
 include/KHR
 include/stb
-include/assimp
 include/zlib-mingw-install
-build/windows
-.vscode
 debug.log
-assets/models/testmodel

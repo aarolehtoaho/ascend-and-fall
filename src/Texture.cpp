@@ -28,8 +28,11 @@ Texture::Texture(const std::string& filePath) {
     if (data) {
         GLenum format = GL_RGB;
 
-        bool isPng = filePath.substr(filePath.size() - 3) == "png";
-        if (isPng) {
+        if (channels == 1) {
+            format = GL_RED;
+        } else if (channels == 3) {
+            format = GL_RGB;
+        } else if (channels == 4) {
             format = GL_RGBA;
         }
 
@@ -38,6 +41,7 @@ Texture::Texture(const std::string& filePath) {
     } else {
         logger.log("Failed to load texture: " + filePath);
     }
+
     stbi_image_free(data);
 };
 Texture::~Texture() {
