@@ -32,7 +32,7 @@ int main() {
 
     Texture container("assets/textures/container.png");
     Texture containerSpecular("assets/textures/container_specular.png");
-    Texture background_forest("assets/textures/background_forest.png");
+    Texture background_forest("assets/textures/background_forest.jpg");
     Texture no_specular("assets/textures/no_specular.png");
 
     Model playerModel("assets/models/player/player_texture.obj");
@@ -65,10 +65,10 @@ int main() {
         defaultShader.setDirLight(glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.05f), glm::vec3(1.0f), glm::vec3(0.0f));
         defaultShader.setSpotLight(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(1.0f, 0.09f, 0.032f), glm::vec2(glm::cos(glm::radians(0.0f)), glm::cos(glm::radians(0.0f))));
 
-        renderer.drawSquare(defaultShader, glm::vec3(0.0f, 200.0f, -100.0f), glm::vec3(600.0f, 600.0f, 1.0f));
+        renderer.drawSquare(defaultShader, glm::vec3(0.0f, 255.0f, -100.0f), glm::vec3(630.0f, 680.0f, 1.0f));
 
         defaultShader.setInt("material.diffuse", container.getUnit());
-        defaultShader.setInt("material.specular", containerSpecular.getUnit());        
+        defaultShader.setInt("material.specular", containerSpecular.getUnit());
         container.bind();
         containerSpecular.bind();
 
