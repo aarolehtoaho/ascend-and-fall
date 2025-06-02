@@ -33,6 +33,8 @@ public:
     Tile(int posX, int posY, glm::vec2 size, TileType type, Model* model);
 
     int getTileID() const { return tileID; }
+    int getPositionX() const { return positionX; }
+    int getPositionY() const { return positionY; }
 
     void render(Shader *shader);
 };
