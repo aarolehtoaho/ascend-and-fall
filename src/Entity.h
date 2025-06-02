@@ -63,7 +63,7 @@ public:
     void setJumping(bool jumping) { this->jumping = jumping; }
     void setCrouching(bool crouching) { this->crouching = crouching; }
 
-    virtual void draw() = 0;
+    virtual void draw();
 };
 
 #endif

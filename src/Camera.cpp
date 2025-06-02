@@ -21,8 +21,8 @@ void Camera::processMouseScroll(float yoffset)
     Zoom -= (float)yoffset;
     if (Zoom < 20.0f)
         Zoom = 20.0f;
-    if (Zoom > 90.0f)
-        Zoom = 90.0f;
+    if (Zoom > 80.0f)
+        Zoom = 80.0f;
 }
 void Camera::moveCamera(glm::vec3 targetPosition, float speed, float deltaTime) {
     if (targetPosition.y - distanceToBottomEdge() < 0.0f) { // Change magic numbers to world dimension constants

@@ -104,6 +104,8 @@ void Entity::updateRotation(float deltaTime) {
     }
 }
 
+void Entity::draw() {};
+
 const float PHYSICAL = 0;
 const float POISON = 0;
 const float ICE = 0;
