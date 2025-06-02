@@ -1,5 +1,5 @@
 #include "Entity.h"
-#include "Shader.h"
+#include "Utils.h"
 
 Entity::Entity(glm::vec3 position, Model *model) \
              : position(position), model(model) {
@@ -44,7 +44,9 @@ void Entity::applyGravityInRope(float deltaTime, glm::vec3 ropeDirection) {
     applyForce(gravityComponent * mass * deltaTime);
 }
 
-void Entity::update(float deltaTime) {
+void Entity::update() {
+    float deltaTime = Utils::getDeltaTime();
+
     velocity += acceleration * deltaTime;
     if (velocity.x > movementSpeed) {
         velocity.x = movementSpeed;

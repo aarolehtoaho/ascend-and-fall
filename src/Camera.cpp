@@ -1,5 +1,6 @@
 #include "Camera.h"
 #include "Window.h"
+#include "Utils.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -24,7 +25,7 @@ void Camera::processMouseScroll(float yoffset)
     if (Zoom > 80.0f)
         Zoom = 80.0f;
 }
-void Camera::moveCamera(glm::vec3 targetPosition, float speed, float deltaTime) {
+void Camera::moveCamera(glm::vec3 targetPosition, float speed) {
     if (targetPosition.y - distanceToBottomEdge() < 0.0f) { // Change magic numbers to world dimension constants
         targetPosition.y = distanceToBottomEdge();
     } else if (targetPosition.y + distanceToBottomEdge() > 512.0f) {
@@ -39,6 +40,7 @@ void Camera::moveCamera(glm::vec3 targetPosition, float speed, float deltaTime) 
     glm::vec3 direction = (targetPosition - Position); // No normalization for acceleration based on distance
     direction.z = 0.0f;
 
+    float deltaTime = Utils::getDeltaTime();
     Position += direction * speed * deltaTime;
 }
 float Camera::distanceToBottomEdge() {

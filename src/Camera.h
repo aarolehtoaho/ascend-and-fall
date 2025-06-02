@@ -16,8 +16,7 @@ private:
 
     Camera();
 
-    float distanceToBottomEdge();
-    float distanceToSideEdge();
+
 public:
     Camera(glm::vec3 position);
     glm::vec3 getPosition() { return Position; }
@@ -27,8 +26,10 @@ public:
 
     void processMouseScroll(float yoffset);
 
-    void moveCamera(glm::vec3 targetPosition, float speed, float deltaTime);
+    void moveCamera(glm::vec3 targetPosition, float speed);
 
     float getCameraDistance() { return Position.z;}
+    float distanceToBottomEdge();
+    float distanceToSideEdge();
 };
 #endif

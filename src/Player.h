@@ -6,9 +6,10 @@
 class Model;
 class Player : public Entity {
 private:
-    Shader *shader;
+    Shader shader;
 public:
-    Player(glm::vec3 position, Model *model, Shader *shader);
+    Player(glm::vec3 position, Model *model);
     void draw();
+    void setLights();
 };
 #endif
