@@ -28,6 +28,9 @@ void Input::processInput(Player *player) {
     if (Window::isPressed(GLFW_KEY_D)) {
         player->applyForce(glm::vec3(1.0f, 0.0f, 0.0f));
     }
+    if (Window::isPressed(GLFW_KEY_UP)) {
+        player->applyForce(glm::vec3(0.0f, 4.0f, 0.0f));
+    }
     if (Window::isReleased(GLFW_KEY_W)) {
         hasReleasedW = true;
     }

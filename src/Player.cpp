@@ -15,7 +15,5 @@ void Player::draw() {
     shader->setFloat("shininess", 0.5f * 128.0f);
 
     glm::vec3 modelOffset = glm::vec3(0.0f, 0.0f, 0.0f);
-    float rotationAngle = lookingDirection == RIGHT ? 90.0f : -90.0f;
-
-    getModel()->draw(*shader, getPosition() + modelOffset, rotationAngle, glm::vec3(0.0f, 1.0f, 0.0f));
+    getModel()->draw(*shader, getPosition() + modelOffset, getRotationAngle(), glm::vec3(0.0f, 1.0f, 0.0f));
 }

@@ -8,6 +8,7 @@ extern const float PHYSICAL, POISON, ICE, FIRE, SOUL;
 extern const float FORCE_ADJUSTMENT;
 extern const glm::vec3 GRAVITY;
 extern const float GRAVITY_ADJUSTMENT;
+extern const float ROTATE_SPEED;
 
 class Shader;
 
@@ -25,6 +26,7 @@ private:
     float movementSpeed;
 
     Model *model;
+    float rotationAngle = 90.0f;;
 
     float health;
     float attackPower;
@@ -48,11 +50,13 @@ public:
     void applyGravity(float deltaTime);
     void applyGravityInRope(float deltaTime, glm::vec3 ropeDirection);
     void update(float deltaTime);
+    void updateRotation(float deltaTime);
 
     glm::vec3 getPosition() { return position; };
     float getMovementSpeed() { return movementSpeed; };
     //float getHeight() { return height; };
     //float getWidth() { return width; };
+    float getRotationAngle() { return rotationAngle; };
     bool isJumping() { return jumping; };
     bool isCrouching() { return crouching; };
 
