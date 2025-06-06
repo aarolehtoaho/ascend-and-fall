@@ -34,13 +34,13 @@ int main() {
     while (!Window::windowShouldClose()) {
         Utils::updateDeltaTime();
 
-        Input::processInput(&player);
-
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         level.update();
         level.render(&renderer, camera, player.getPosition());
+
+        Input::processInput(&player);
 
         player.draw();
         player.update();

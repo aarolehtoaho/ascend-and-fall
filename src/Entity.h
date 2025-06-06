@@ -40,8 +40,6 @@ private:
 
     bool crouching = false;
     bool onGround = false;
-
-    void checkMapBounds();
 protected:
     Model* getModel() { return model; }
     LookingDirection lookingDirection = RIGHT;
@@ -55,6 +53,7 @@ public:
     void update();
     void updateRotation(float deltaTime);
     void handleCollision(Tile *tile);
+    void checkMapBounds();
 
     glm::vec3 getPosition() { return position; };
     AABB getAABB();

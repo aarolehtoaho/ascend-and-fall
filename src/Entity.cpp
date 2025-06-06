@@ -57,8 +57,6 @@ void Entity::update() {
 
     position += velocity * deltaTime;
 
-    checkMapBounds();
-
     bool shouldApplyFriction = acceleration.x == 0.0f || (velocity.x * acceleration.x < 0.0f);
     if (shouldApplyFriction) {
         applyFriction(deltaTime);
@@ -127,19 +125,21 @@ void Entity::handleCollision(Tile *tile) {
 }
 
 void Entity::checkMapBounds() {
-    if (position.y <= 2.5f) {
+    float offsetX = width / 2.0f + modelOffset.x;
+    float offsetY = height / 2.0f + modelOffset.y;
+    if (position.y <= 0.0f + offsetY) {
         onGround = true;
-        position.y = 2.5f;
+        position.y = 0.0f + offsetY;
         velocity.y = 0.0f;
-    } else if (position.y > 512.0f) {
-        position.y = 512.0f;
+    } else if (position.y > 512.0f - offsetY) {
+        position.y = 512.0f - offsetY;
         velocity.y = 0.0f;
     }
-    if (position.x < -123.0f) {
-        position.x = -123.0f;
+    if (position.x < -123.0f + offsetX) {
+        position.x = -123.0f + offsetX;
         velocity.x = 0.0f;
-    } else if (position.x > 123.0f) {
-        position.x = 123.0f;
+    } else if (position.x > 123.0f - offsetX) {
+        position.x = 123.0f - offsetX;
         velocity.x = 0.0f;
     }
 }
