@@ -1,6 +1,8 @@
 #ifndef TILE_H
 #define TILE_H
 
+#include "Collision.h"
+
 #include <glm/glm.hpp>
 #include <vector>
 
@@ -24,6 +26,7 @@ private:
     int positionY;
     glm::vec2 size;
     TileType type;
+    AABB aabb;
 
     Model* model;
 
@@ -35,6 +38,8 @@ public:
     int getTileID() const { return tileID; }
     int getPositionX() const { return positionX; }
     int getPositionY() const { return positionY; }
+    AABB getAABB() const { return aabb; }
+    TileType getTileType() const { return type; }
 
     void render(Shader *shader);
 };

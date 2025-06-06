@@ -3,6 +3,8 @@
 #include "Logger.h"
 #include "Renderer.h"
 #include "Model.h"
+#include "Collision.h"
+#include "Player.h"
 
 #include <glm/glm.hpp>
 
@@ -10,12 +12,14 @@ Logger Level::logger("debug.log");
 
 const int CHUNK_SIZE = 16;
 
-Level::Level(levelName name)
+Level::Level(levelName name, Player *player)
             : name(name),
               shapeShader("assets/shaders/shape_phong.vs", "assets/shaders/shape_phong.fs"),
               modelShader("assets/shaders/modelshader.vs", "assets/shaders/modelshader.fs"),
               backgroundTexture("assets/textures/background_forest.jpg"),
-              backgroundSpecularTexture("assets/textures/no_specular.png") {
+              backgroundSpecularTexture("assets/textures/no_specular.png"),
+              player(player) {
+
     switch (name) {
         case FOREST:
             createForest();
@@ -64,12 +68,16 @@ void Level::createForest() {
     Tile tile3(-1, 0, glm::vec2(1.0f, 1.0f), TILE_SOLID, testModel);
     Tile tile4(-123, 0, glm::vec2(1.0f, 1.0f), TILE_SOLID, testModel);
     Tile tile5(123, 0, glm::vec2(1.0f, 1.0f), TILE_SOLID, testModel);
+    Tile tile6(4, 8, glm::vec2(1.0f, 1.0f), TILE_SOLID, testModel);
+    Tile tile7(8, 20, glm::vec2(1.0f, 1.0f), TILE_SOLID, testModel);
 
     addTile(tile1);
     addTile(tile2);
     addTile(tile3);
     addTile(tile4);
     addTile(tile5);
+    addTile(tile6);
+    addTile(tile7);
 }
 void Level::render(Renderer *renderer, Camera *camera, glm::vec3 playerPosition) {
     renderBackground(renderer, &shapeShader);
@@ -79,6 +87,25 @@ void Level::render(Renderer *renderer, Camera *camera, glm::vec3 playerPosition)
     for (auto& chunk: renderedChunks) {
         for (Tile& tile: chunkTiles[chunk]) {
             tile.render(&modelShader);
+        }
+    }
+}
+
+void Level::update() {
+    player->setOnGround(false);
+    checkCollisions(player);
+}
+
+void Level::checkCollisions(Entity *entity) {
+    AABB entityAABB = entity->getAABB();
+    
+    for (int xOffset = -1; xOffset <= 1; xOffset++) {
+        for (int yOffset = -1; yOffset <= 1; yOffset++) {
+            for (Tile& tile: chunkTiles[getChunkCoordinates(entity->getPosition().x + xOffset, entity->getPosition().y + yOffset)]) {
+                if (tile.getAABB().intersects(entityAABB)) {
+                    entity->handleCollision(&tile);
+                }
+            }
         }
     }
 }

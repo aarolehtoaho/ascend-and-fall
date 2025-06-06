@@ -33,6 +33,7 @@ class Logger;
 class Renderer;
 class Model;
 class Camera;
+class Player;
 
 class Level {
 private:
@@ -50,6 +51,8 @@ private:
     std::vector<Model> tileModels;
     std::vector<Model> entityModels;
 
+    Player *player;
+
     std::unordered_map<std::pair<int, int>, std::vector<Entity>, PairHash> chunkEntities;
     std::unordered_map<std::pair<int, int>, std::vector<Tile>, PairHash> chunkTiles;
     
@@ -65,10 +68,12 @@ private:
 
     static Logger logger;
 public:
-    Level(levelName name);
+    Level(levelName name, Player *player);
     levelName getName() const { return name; }
 
     void render(Renderer *renderer, Camera *camera, glm::vec3 playerPosition);
+    void update();
+    void checkCollisions(Entity *entity);
 };
 
 #endif

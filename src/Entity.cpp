@@ -1,8 +1,9 @@
 #include "Entity.h"
 #include "Utils.h"
+#include "Tile.h"
 
-Entity::Entity(glm::vec3 position, Model *model) \
-             : position(position), model(model) {
+Entity::Entity(glm::vec3 position, float height, float width, Model *model, glm::vec3 modelOffset) \
+             : position(position), height(height), width(width), model(model), modelOffset(modelOffset) {
     velocity = glm::vec3(0.0f);
     acceleration = glm::vec3(0.0f);
     mass = 10.0f;
@@ -65,7 +66,9 @@ void Entity::update() {
 
     acceleration = glm::vec3(0.0f);
     
-    applyGravity(deltaTime);
+    if (!onGround) {
+        applyGravity(deltaTime);
+    }
 
     if (velocity.x < 0.0f) {
         lookingDirection = LEFT;
@@ -75,9 +78,57 @@ void Entity::update() {
     updateRotation(deltaTime);
 }
 
+void Entity::handleCollision(Tile *tile) {
+    AABB entityAABB = getAABB();
+    AABB tileAABB = tile->getAABB();
+    float overlapX = 0.0f;
+    float overlapY = 0.0f;
+    
+    switch (tile->getTileType()) {
+        case TILE_SOLID:
+            overlapX = std::min(entityAABB.max.x, tileAABB.max.x) - std::max(entityAABB.min.x, tileAABB.min.x);
+            overlapY = std::min(entityAABB.max.y, tileAABB.max.y) - std::max(entityAABB.min.y, tileAABB.min.y);
+
+            if (overlapX < 0 || overlapY < 0) {
+                // No collision
+                return;
+            }
+            if (overlapX < overlapY) {
+                // Collision on X axis
+                if (entityAABB.min.x < tileAABB.min.x) {
+                    position.x -= overlapX;
+                } else {
+                    position.x += overlapX;
+                }
+                velocity.x = 0.0f;
+            } else {
+                // Collision on Y axis
+                if (entityAABB.min.y < tileAABB.min.y) {
+                    // Collision from below
+                    position.y -= overlapY;
+                    velocity.y = 0.0f;
+                } else {
+                    // Landed on top
+                    position.y = tileAABB.max.y + height / 2.0f - modelOffset.y;
+                    velocity.y = 0.0f;
+                    onGround = true;
+                }
+            }
+            break;
+        case TILE_PLATFORM:
+            break;
+        case TILE_BACKGROUND:
+            break;
+        case TILE_LIQUID:
+            break;
+        case TILE_TRIGGER:
+            break;
+    }
+}
+
 void Entity::checkMapBounds() {
     if (position.y <= 2.5f) {
-        jumping = false;
+        onGround = true;
         position.y = 2.5f;
         velocity.y = 0.0f;
     } else if (position.y > 512.0f) {
@@ -104,6 +155,12 @@ void Entity::updateRotation(float deltaTime) {
     } else if (rotationAngle > 90.0f) {
         rotationAngle = 90.0f;
     }
+}
+
+AABB Entity::getAABB() {
+    aabb.min = glm::vec3(position.x - width / 2.0f, position.y - height / 2.0f, -0.5f) + modelOffset;
+    aabb.max = glm::vec3(position.x + width / 2.0f, position.y + height / 2.0f, 0.5f) + modelOffset;
+    return aabb;
 }
 
 void Entity::draw() {};

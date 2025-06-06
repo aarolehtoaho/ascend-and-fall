@@ -8,6 +8,8 @@ int Tile::tileCount = 0;
 Tile::Tile(int posX, int posY, glm::vec2 size, TileType type, Model* model)
     : positionX(posX), positionY(posY), size(size), type(type), model(model) {
     tileID = tileCount++;
+    aabb.min = glm::vec3(positionX - size.x / 2.0f, positionY - size.y / 2.0f, -0.5f);
+    aabb.max = glm::vec3(positionX + size.x / 2.0f, positionY + size.y / 2.0f, 0.5f);
 }
 
 void Tile::render(Shader *shader) {

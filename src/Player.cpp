@@ -1,7 +1,7 @@
 #include "Player.h"
 
 Player::Player(glm::vec3 position, Model *model) \
-             : Entity(position, model), \
+             : Entity(position, 4.8f, 1.1f, model, glm::vec3(0.2f, -0.5f, 0.0f)), \
                shader("assets/shaders/modelshader.vs", "assets/shaders/modelshader.fs") {}
 
 void Player::draw() {

@@ -14,10 +14,10 @@ void Input::processInput(Player *player) {
         Window::closeWindow();
     }
 
-    if (Window::isPressed(GLFW_KEY_W) && hasReleasedW && !player->isJumping()) {
+    if (Window::isPressed(GLFW_KEY_W) && hasReleasedW && player->isOnGround()) {
         hasReleasedW = false;
         player->applyImpulse(glm::vec3(0.0f, 1.2f, 0.0f));
-        player->setJumping(true);
+        player->setOnGround(false);
     }
     if (Window::isPressed(GLFW_KEY_A)) {
         player->applyForce(glm::vec3(-1.0f, 0.0f, 0.0f));

@@ -29,7 +29,7 @@ int main() {
     Model playerModel("assets/models/player/player_texture.obj");
     Player player(glm::vec3(0.0f, 5.0f, 0.0f), &playerModel);
 
-    Level level(FOREST);
+    Level level(FOREST, &player);
 
     while (!Window::windowShouldClose()) {
         Utils::updateDeltaTime();
@@ -39,6 +39,7 @@ int main() {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        level.update();
         level.render(&renderer, camera, player.getPosition());
 
         player.draw();
