@@ -5,6 +5,7 @@
 
 #include "Renderer.h"
 #include "Texture.h"
+#include "Window.h"
 
 Renderer::Renderer(Camera *camera) {
     this->camera = camera;
@@ -46,6 +47,26 @@ void Renderer::drawSquare(Shader& shader, \
     glBindVertexArray(VAO_S);
     glDrawArrays(GL_TRIANGLES, 0, 6);
 };
+
+void Renderer::drawStaticSquare(Shader& shader, \
+                                glm::vec3 position, \
+                                glm::vec3 scale, \
+                                glm::vec3 rotation, \
+                                float angle) {
+    shader.use();
+
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, position);
+    model = glm::rotate(model, glm::radians(angle), rotation);
+    model = glm::scale(model, scale);
+    shader.setMat4("model", model);
+    glm::mat4 projection = glm::ortho(0.0f, Window::getWidth(), 0.0f, Window::getHeight());
+    shader.setMat4("projection", projection);
+
+    glBindVertexArray(VAO_S);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+};
+
 void Renderer::drawCube(Shader& shader, \
                         glm::vec3 position, \
                         glm::vec3 scale, \

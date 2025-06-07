@@ -4,16 +4,16 @@
 #include "Window.h"
 #include "Logger.h"
 #include "Callbacks.h"
+#include "Hud.h"
 
 #include <stdexcept>
 
 Window* Window::instance = nullptr;
 GLFWwindow* Window::window = nullptr;
 Camera* Window::camera = nullptr;
+Hud* Window::hud = nullptr;
 unsigned int Window::window_width = 1280;
 unsigned int Window::window_height = 720;
-double Window::mouse_x = 0;
-double Window::mouse_y = 0;
 
 Window::Window() {
     glfwInit();
@@ -40,13 +40,16 @@ Window::Window() {
     }
 
     camera = new Camera(glm::vec3(0.0f, 0.0f, 15.0f));
+    hud = new Hud();
 
-    Callbacks::setCallbacks(window, camera);
+    Callbacks::setCallbacks(window, camera, hud);
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL); // Change to hidden after implementing custom cursor
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 };
 Window* Window::getInstance() {
     if (instance == nullptr) {
@@ -69,10 +72,6 @@ void Window::setDimensions(int width, int height) {
     window_width = width;
     window_height = height;
 };
-void Window::setMousePositions(double xpos, double ypos) {
-    mouse_x = xpos;
-    mouse_y = ypos;
-}
 
 bool Window::windowShouldClose() {
     return glfwWindowShouldClose(window);

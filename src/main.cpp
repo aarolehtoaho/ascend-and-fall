@@ -11,6 +11,7 @@
 #include "Player.h"
 #include "Model.h"
 #include "Level.h"
+#include "Hud.h"
 //#include "Animation.h"
 //#include "Animator.h"
 
@@ -24,6 +25,7 @@ int main() {
         return -1;
     }
     Camera* camera = window->getCamera();
+    Hud* hud = window->getHud();
     Renderer renderer(camera);
 
     Model playerModel("assets/models/player/player_texture.obj");
@@ -44,6 +46,8 @@ int main() {
 
         player.draw();
         player.update();
+
+        hud->render(&renderer);
 
         camera->moveCamera(player.getPosition(), player.getMovementSpeed() + 1.0f);
 

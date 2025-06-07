@@ -39,6 +39,7 @@ add_executable(AscendAndFall
     src/Model.cpp
     src/Tile.cpp
     src/Collision.cpp
+    src/Hud.cpp
 )
 
 target_link_libraries(AscendAndFall 
