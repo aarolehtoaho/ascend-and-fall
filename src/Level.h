@@ -60,7 +60,7 @@ private:
     void addEntity(Entity entity);
 
     std::pair<int, int> getChunkCoordinates(float posX, float posY) const;
-    std::set<std::pair<int, int>> chunksToRender(Camera *camera, float playerPositionX, float playerPositionY);
+    std::set<std::pair<int, int>> chunksToRender(Camera *camera);
     bool chunkInsideBounds(int chunkX, int chunkY);
 
     void createForest();

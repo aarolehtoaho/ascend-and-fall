@@ -82,7 +82,7 @@ void Level::createForest() {
 void Level::render(Renderer *renderer, Camera *camera, glm::vec3 playerPosition) {
     renderBackground(renderer, &shapeShader);
 
-    std::set<std::pair<int, int>> renderedChunks = chunksToRender(camera, playerPosition.x, playerPosition.y);
+    std::set<std::pair<int, int>> renderedChunks = chunksToRender(camera);
 
     for (auto& chunk: renderedChunks) {
         for (Tile& tile: chunkTiles[chunk]) {
@@ -115,24 +115,9 @@ bool Level::chunkInsideBounds(int chunkX, int chunkY) {
     return (chunkX >= floor(leftBound / CHUNK_SIZE) && chunkX <= floor(rightBound / CHUNK_SIZE) && chunkY >= floor(bottomBound / CHUNK_SIZE) && chunkY <= floor(topBound / CHUNK_SIZE));
 }
 
-std::set<std::pair<int, int>> Level::chunksToRender(Camera *camera, float playerPositionX, float playerPositionY) {
+std::set<std::pair<int, int>> Level::chunksToRender(Camera *camera) {
     std::set<std::pair<int, int>> result;
 
-    std::pair<int, int> playerChunk = getChunkCoordinates(playerPositionX, playerPositionY);
-    for (int xOffset = -1; xOffset <= 1; xOffset++) {
-        for (int yOffset = -1; yOffset <= 1; yOffset++) {
-            int chunkX = playerChunk.first + xOffset;
-            int chunkY = playerChunk.second + yOffset;
-            if (chunkInsideBounds(chunkX, chunkY)) {
-                std::pair<int, int> chunk;
-                chunk.first = chunkX;
-                chunk.second = chunkY;
-                result.insert(chunk);
-            }
-        }
-    }
-    /* Chunks near to the player and chunks near to the camera are added separately, in case of player
-       being outside of the camera. */
     std::pair<int, int> cameraChunk = getChunkCoordinates(camera->getPosition().x, camera->getPosition().y);
     int rangeX = ceil(camera->distanceToSideEdge() / CHUNK_SIZE);
     int rangeY = ceil(camera->distanceToBottomEdge() / CHUNK_SIZE);
