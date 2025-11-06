@@ -63,21 +63,27 @@ void Level::createForest() {
     tileModels.emplace_back("assets/models/testmodel/testCube/testCube.obj");
     Model *testModel = &tileModels.back();
 
-    Tile tile1(0, 0, glm::vec2(1.0f, 1.0f), TILE_SOLID, testModel);
-    Tile tile2(1, 1, glm::vec2(1.0f, 1.0f), TILE_SOLID, testModel);
-    Tile tile3(-1, 0, glm::vec2(1.0f, 1.0f), TILE_SOLID, testModel);
-    Tile tile4(-123, 0, glm::vec2(1.0f, 1.0f), TILE_SOLID, testModel);
-    Tile tile5(123, 0, glm::vec2(1.0f, 1.0f), TILE_SOLID, testModel);
-    Tile tile6(4, 8, glm::vec2(1.0f, 1.0f), TILE_SOLID, testModel);
-    Tile tile7(8, 20, glm::vec2(1.0f, 1.0f), TILE_SOLID, testModel);
+    Tile tileAtLeftBorder(-123, 0, glm::vec2(1.0f, 1.0f), TILE_SOLID, testModel);
+    Tile tileAtRightBorder(123, 0, glm::vec2(1.0f, 1.0f), TILE_SOLID, testModel);
+    addTile(tileAtLeftBorder);
+    addTile(tileAtRightBorder);
 
-    addTile(tile1);
-    addTile(tile2);
-    addTile(tile3);
-    addTile(tile4);
-    addTile(tile5);
-    addTile(tile6);
-    addTile(tile7);
+    // Generate random sized blocks to random locations
+    unsigned int seed = 1337;
+    srand(seed);
+    for (int block = 0; block < 200; block++) {
+        int x = rand() % (int)(rightBound + 1);
+        x = rand() % 2 == 0 ? x : -x;
+        int y = rand() % (int)(topBound + 1);
+        int blockWidth = rand() % 15;
+        int blockHeight = rand() % 8;
+        for (int xOffset = 0; xOffset < blockWidth && x + xOffset <= rightBound; xOffset++) {
+            for (int yOffset = 0; yOffset < blockHeight && y + yOffset <= topBound; yOffset++) {
+                Tile generatedTile(x + xOffset, y + yOffset, glm::vec2(1.0f, 1.0f), TILE_SOLID, testModel);
+                addTile(generatedTile);
+            }
+        }
+    }
 }
 void Level::render(Renderer *renderer, Camera *camera, glm::vec3 playerPosition) {
     renderBackground(renderer, &shapeShader);
