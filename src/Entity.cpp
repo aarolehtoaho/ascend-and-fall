@@ -171,7 +171,7 @@ const float ICE = 0;
 const float FIRE = 0;
 const float SOUL = 0;
 
-const float FORCE_ADJUSTMENT = 120.0f;
-const float GRAVITY_ADJUSTMENT = 1.5f;
+const float FORCE_ADJUSTMENT = 150.0f;
+const float GRAVITY_ADJUSTMENT = 2.5f;
 const glm::vec3 GRAVITY = glm::vec3(0.0f, -9.81f, 0.0f) * GRAVITY_ADJUSTMENT;
-const float ROTATE_SPEED = 100.0f;
+const float ROTATE_SPEED = 150.0f;
