@@ -43,6 +43,7 @@ uniform sampler2D texture_specular1;
 uniform float shininess;
 uniform DirLight dirLight;
 uniform PointLight pointLights[NR_POINT_LIGHTS];
+uniform bool pointLightSet[NR_POINT_LIGHTS];
 uniform SpotLight spotLight;
 
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
@@ -58,7 +59,9 @@ void main()
 
     for(int i = 0; i < NR_POINT_LIGHTS; i++)
     {
-        result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
+        if (pointLightSet[i]) {
+            result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
+        }
     }
 
     result += CalcSpotLight(spotLight, norm, FragPos, viewDir);

@@ -19,6 +19,7 @@ Level::Level(levelName name, Player *player)
               backgroundTexture("assets/textures/background_forest.jpg"),
               backgroundSpecularTexture("assets/textures/no_specular.png"),
               player(player) {
+    Tile::setPlayer(player);
 
     switch (name) {
         case FOREST:

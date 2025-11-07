@@ -8,6 +8,7 @@
 
 class Model;
 class Shader;
+class Player;
 
 enum TileType {
     TILE_SOLID,
@@ -20,6 +21,7 @@ enum TileType {
 class Tile {
 private:
     static int tileCount;
+    static Player *player;
 
     int tileID;
     int positionX;
@@ -42,6 +44,8 @@ public:
     TileType getTileType() const { return type; }
 
     void render(Shader *shader);
+
+    static void setPlayer(Player *p) { player = p; }
 };
 
 #endif

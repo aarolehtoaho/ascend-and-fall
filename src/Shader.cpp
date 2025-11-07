@@ -118,6 +118,8 @@ void Shader::setPointLight(int index, glm::vec3 position, glm::vec3 ambient, glm
     setVec3(pointLight + "diffuse", diffuse);
     setVec3(pointLight + "specular", specular);
     setVec3(pointLight + "attenuation", attenuation);
+    std::string pointLightSet = "pointLightSet[" + std::to_string(index) + "]";
+    setBool(pointLightSet, true);
 }
 void Shader::setSpotLight(glm::vec3 position, glm::vec3 direction, glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, glm::vec3 attenuation, glm::vec2 cutOffs) const {
     setVec3("spotLight.position", position);

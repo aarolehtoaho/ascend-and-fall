@@ -49,6 +49,7 @@ uniform vec3 viewPos;
 uniform Material material;
 uniform DirLight dirLight;
 uniform PointLight pointLights[NR_POINT_LIGHTS];
+uniform bool pointLightSet[NR_POINT_LIGHTS];
 uniform SpotLight spotLight;
 
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
@@ -62,8 +63,11 @@ void main()
 
     vec3 result = CalcDirLight(dirLight, norm, viewDir);
  
-    for(int i = 0; i < NR_POINT_LIGHTS; i++)
-        result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);    
+    for(int i = 0; i < NR_POINT_LIGHTS; i++) {
+        if (pointLightSet[i]) {
+            result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);   
+        }
+    }
 
     result += CalcSpotLight(spotLight, norm, FragPos, viewDir);
 
