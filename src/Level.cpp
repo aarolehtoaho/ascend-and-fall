@@ -61,7 +61,7 @@ void Level::createForest() {
     bottomBound = 0.0f;
     topBound = 512.0f;
 
-    tileModels.emplace_back("assets/models/testmodel/testCube/testCube.obj");
+    tileModels.emplace_back("assets/models/groundTile/groundTile.obj");
     Model *testModel = &tileModels.back();
 
     Tile tileAtLeftBorder(-123, 0, glm::vec2(1.0f, 1.0f), TILE_SOLID, testModel);
