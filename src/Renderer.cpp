@@ -18,7 +18,7 @@ void Renderer::draw(Shader& shader, \
               glm::vec3 rotation, \
               float angle) {
     shader.setVec3("viewPos", camera->getPosition());
-    shader.setFloat("material.shininess", 0.5f * 128.0f);
+    shader.setFloat("shininess", 0.5f * 128.0f);
 
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, position);

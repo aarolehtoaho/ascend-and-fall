@@ -8,12 +8,17 @@ Logger Texture::logger("debug.log");
 
 Texture::Texture(const std::string& filePath) {
     unit = units++;
-    if (unit > 31) {
-        logger.log("Maximum texture units exceeded. Only 32 units are supported.");
+
+    GLint maxUnitsGL = 0;
+    glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &maxUnitsGL);
+    if (unit > maxUnitsGL) {
+        logger.log("Maximum texture units exceeded.");
         return;
     }
 
     glGenTextures(1, &textureID);
+
+    glActiveTexture(GL_TEXTURE0 + unit);
     glBindTexture(GL_TEXTURE_2D, textureID);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -43,6 +48,7 @@ Texture::Texture(const std::string& filePath) {
     }
 
     stbi_image_free(data);
+    glBindTexture(GL_TEXTURE_2D, 0);
 };
 Texture::~Texture() {
     glDeleteTextures(1, &textureID);

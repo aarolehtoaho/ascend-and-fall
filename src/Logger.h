@@ -20,5 +20,9 @@ public:
         time(&timestamp);
         log(ctime(&timestamp));
     }
+    static Logger& getGlobal() {
+        static Logger globalLogger("debug.log");
+        return globalLogger;
+    }
 };
 #endif
