@@ -104,13 +104,17 @@ void Level::update() {
 
 void Level::checkCollisions(Entity *entity) {
     AABB entityAABB = entity->getAABB();
-    
-    for (int xOffset = -1; xOffset <= 1; xOffset++) {
-        for (int yOffset = -1; yOffset <= 1; yOffset++) {
-            for (Tile& tile: chunkTiles[getChunkCoordinates(entity->getPosition().x + xOffset, entity->getPosition().y + yOffset)]) {
-                if (tile.getAABB().intersects(entityAABB)) {
-                    entity->handleCollision(&tile);
-                }
+
+    std::set<std::pair<int, int>> nearbyChuncks;
+    nearbyChuncks.insert(getChunkCoordinates(entityAABB.minX, entityAABB.minY));
+    nearbyChuncks.insert(getChunkCoordinates(entityAABB.minX, entityAABB.maxY));
+    nearbyChuncks.insert(getChunkCoordinates(entityAABB.maxX, entityAABB.minY));
+    nearbyChuncks.insert(getChunkCoordinates(entityAABB.maxX, entityAABB.maxY));
+
+    for (auto& chunk: nearbyChuncks) {
+        for (Tile& tile: chunkTiles[chunk]) {
+            if (tile.getAABB().intersects(entityAABB)) {
+                entity->handleCollision(&tile);
             }
         }
     }
