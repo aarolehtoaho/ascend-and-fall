@@ -82,18 +82,20 @@ void Entity::handleCollision(Tile *tile) {
     float overlapX = 0.0f;
     float overlapY = 0.0f;
     
+    bool noCollision = false;
+    bool collisionOnX = false;
     switch (tile->getTileType()) {
         case TILE_SOLID:
-            overlapX = std::min(entityAABB.max.x, tileAABB.max.x) - std::max(entityAABB.min.x, tileAABB.min.x);
-            overlapY = std::min(entityAABB.max.y, tileAABB.max.y) - std::max(entityAABB.min.y, tileAABB.min.y);
+            overlapX = std::min(entityAABB.maxX, tileAABB.maxX) - std::max(entityAABB.minX, tileAABB.minX);
+            overlapY = std::min(entityAABB.maxY, tileAABB.maxY) - std::max(entityAABB.minY, tileAABB.minY);
 
-            if (overlapX < 0 || overlapY < 0) {
-                // No collision
+            noCollision = overlapX <= 0 || overlapY <= 0;
+            if (noCollision) {
                 return;
             }
-            if (overlapX < overlapY) {
-                // Collision on X axis
-                if (entityAABB.min.x < tileAABB.min.x) {
+            collisionOnX = overlapX < overlapY;
+            if (collisionOnX) {
+                if (entityAABB.minX < tileAABB.minX) {
                     position.x -= overlapX;
                 } else {
                     position.x += overlapX;
@@ -101,13 +103,13 @@ void Entity::handleCollision(Tile *tile) {
                 velocity.x = 0.0f;
             } else {
                 // Collision on Y axis
-                if (entityAABB.min.y < tileAABB.min.y) {
+                if (entityAABB.minY < tileAABB.minY) {
                     // Collision from below
                     position.y -= overlapY;
                     velocity.y = 0.0f;
                 } else {
                     // Landed on top
-                    position.y = tileAABB.max.y + height / 2.0f - modelOffset.y;
+                    position.y = tileAABB.maxY + height / 2.0f - modelOffset.y;
                     velocity.y = 0.0f;
                     onGround = true;
                 }
@@ -158,8 +160,10 @@ void Entity::updateRotation(float deltaTime) {
 }
 
 AABB Entity::getAABB() {
-    aabb.min = glm::vec3(position.x - width / 2.0f, position.y - height / 2.0f, -0.5f) + modelOffset;
-    aabb.max = glm::vec3(position.x + width / 2.0f, position.y + height / 2.0f, 0.5f) + modelOffset;
+    aabb.minX = position.x - width / 2.0;
+    aabb.minY = position.y - height / 2.0;
+    aabb.maxX = position.x + width / 2.0;
+    aabb.maxY = position.y + height / 2.0;
     return aabb;
 }
 
@@ -172,6 +176,6 @@ const float FIRE = 0;
 const float SOUL = 0;
 
 const float FORCE_ADJUSTMENT = 150.0f;
-const float GRAVITY_ADJUSTMENT = 2.5f;
+const float GRAVITY_ADJUSTMENT = 1.0f;
 const glm::vec3 GRAVITY = glm::vec3(0.0f, -9.81f, 0.0f) * GRAVITY_ADJUSTMENT;
 const float ROTATE_SPEED = 150.0f;
