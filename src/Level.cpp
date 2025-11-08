@@ -99,7 +99,7 @@ void Level::render(Renderer *renderer, Camera *camera, glm::vec3 playerPosition)
 void Level::update() {
     player->setOnGround(false);
     checkCollisions(player);
-    player->checkMapBounds();
+    player->checkMapBounds(leftBound, rightBound, bottomBound, topBound);
 }
 
 void Level::checkCollisions(Entity *entity) {

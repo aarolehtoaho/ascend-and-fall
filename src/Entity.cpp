@@ -77,43 +77,9 @@ void Entity::update() {
 }
 
 void Entity::handleCollision(Tile *tile) {
-    AABB entityAABB = getAABB();
-    AABB tileAABB = tile->getAABB();
-    float overlapX = 0.0f;
-    float overlapY = 0.0f;
-    
-    bool noCollision = false;
-    bool collisionOnX = false;
     switch (tile->getTileType()) {
         case TILE_SOLID:
-            overlapX = std::min(entityAABB.maxX, tileAABB.maxX) - std::max(entityAABB.minX, tileAABB.minX);
-            overlapY = std::min(entityAABB.maxY, tileAABB.maxY) - std::max(entityAABB.minY, tileAABB.minY);
-
-            noCollision = overlapX <= 0 || overlapY <= 0;
-            if (noCollision) {
-                return;
-            }
-            collisionOnX = overlapX < overlapY;
-            if (collisionOnX) {
-                if (entityAABB.minX < tileAABB.minX) {
-                    position.x -= overlapX;
-                } else {
-                    position.x += overlapX;
-                }
-                velocity.x = 0.0f;
-            } else {
-                // Collision on Y axis
-                if (entityAABB.minY < tileAABB.minY) {
-                    // Collision from below
-                    position.y -= overlapY;
-                    velocity.y = 0.0f;
-                } else {
-                    // Landed on top
-                    position.y = tileAABB.maxY + height / 2.0f - modelOffset.y;
-                    velocity.y = 0.0f;
-                    onGround = true;
-                }
-            }
+            handleSolidCollision(tile);
             break;
         case TILE_PLATFORM:
             break;
@@ -126,22 +92,58 @@ void Entity::handleCollision(Tile *tile) {
     }
 }
 
-void Entity::checkMapBounds() {
+void Entity::handleSolidCollision(Tile *tile) {
+    AABB entityAABB = getAABB();
+    AABB tileAABB = tile->getAABB();    
+    double overlapX = std::min(entityAABB.maxX, tileAABB.maxX) - std::max(entityAABB.minX, tileAABB.minX);
+    double overlapY = std::min(entityAABB.maxY, tileAABB.maxY) - std::max(entityAABB.minY, tileAABB.minY);
+
+    bool noCollision = overlapX <= 0 || overlapY <= 0;
+    if (noCollision) {
+        return;
+    }
+
+    bool collisionOnX = overlapX < overlapY;
+    if (collisionOnX) {
+        if (entityAABB.minX < tileAABB.minX) {
+            position.x -= overlapX;
+        } else {
+            position.x += overlapX;
+        }
+        velocity.x = 0.0f;
+    }
+    
+    bool collisionOnY = !collisionOnX;
+    if (collisionOnY) {
+        if (entityAABB.minY < tileAABB.minY) {
+            // Headhit
+            position.y -= overlapY;
+            velocity.y = 0.0f;
+        } else {
+            // Landed on top
+            position.y = tileAABB.maxY + height / 2.0f - modelOffset.y;
+            velocity.y = 0.0f;
+            onGround = true;
+        }
+    }    
+}
+
+void Entity::checkMapBounds(float left, float right, float bottom, float top) {
     float offsetX = width / 2.0f + modelOffset.x;
     float offsetY = height / 2.0f + modelOffset.y;
-    if (position.y <= 0.0f + offsetY) {
+    if (position.y <= bottom + offsetY) {
         onGround = true;
-        position.y = 0.0f + offsetY;
+        position.y = bottom + offsetY;
         velocity.y = 0.0f;
-    } else if (position.y > 512.0f - offsetY) {
-        position.y = 512.0f - offsetY;
+    } else if (position.y > top - offsetY) {
+        position.y = top - offsetY;
         velocity.y = 0.0f;
     }
-    if (position.x < -123.0f + offsetX) {
-        position.x = -123.0f + offsetX;
+    if (position.x < left + offsetX) {
+        position.x = left + offsetX;
         velocity.x = 0.0f;
-    } else if (position.x > 123.0f - offsetX) {
-        position.x = 123.0f - offsetX;
+    } else if (position.x > right - offsetX) {
+        position.x = right - offsetX;
         velocity.x = 0.0f;
     }
 }

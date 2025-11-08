@@ -53,7 +53,8 @@ public:
     void update();
     void updateRotation(float deltaTime);
     void handleCollision(Tile *tile);
-    void checkMapBounds();
+    void handleSolidCollision(Tile *tile);
+    void checkMapBounds(float left, float right, float bottom, float top);
 
     glm::vec3 getPosition() { return position; };
     AABB getAABB();
