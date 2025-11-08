@@ -44,11 +44,20 @@ Level::Level(levelName name, Player *player)
 
 bool Level::addTile(Tile tile) {
     std::pair<int, int> chunkCoords = getChunkCoordinates(tile.getPositionX(), tile.getPositionY());
-    std::pair<int, int> tileCoords;
-    tileCoords.first = tile.getPositionX();
-    tileCoords.second = tile.getPositionY();
-    bool tileAdded = chunkTiles[chunkCoords].insert_or_assign(tileCoords, std::move(tile)).second;
+    std::pair<int, int> tileCoords = {tile.getPositionX(), tile.getPositionY()};
+    bool tileAdded = chunkTiles[chunkCoords].emplace(tileCoords, std::move(tile)).second;
     return tileAdded;
+}
+
+Tile* Level::getTile(int x, int y) {
+    std::pair<int, int> chunkCoords = getChunkCoordinates(x, y);
+    std::pair<int, int> tileCoords = {x, y};
+    auto tileMap = chunkTiles[chunkCoords];
+    auto result = tileMap.find(tileCoords);
+    if (result == tileMap.end()) {
+        return nullptr;
+    }
+    return &result->second;
 }
 
 void Level::addEntity(Entity entity) {

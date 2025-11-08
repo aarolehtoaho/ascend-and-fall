@@ -63,6 +63,7 @@ private:
                        PairHash> chunkTiles;
     
     bool addTile(Tile tile);
+    Tile* getTile(int x, int y);
     void addEntity(Entity entity);
 
     std::pair<int, int> getChunkCoordinates(float posX, float posY) const;
