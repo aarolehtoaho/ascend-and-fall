@@ -5,6 +5,7 @@
 #include "Model.h"
 #include "Collision.h"
 #include "Player.h"
+#include "Perlin2D.h"
 
 #include <glm/glm.hpp>
 
@@ -60,27 +61,24 @@ void Level::createForest() {
     rightBound = 123.0f;
     bottomBound = 0.0f;
     topBound = 512.0f;
+    unsigned int levelWidth = rightBound - leftBound;
+    unsigned int levelHeight = topBound - bottomBound;
 
     tileModels.emplace_back("assets/models/groundTile/groundTile.obj");
-    Model *testModel = &tileModels.back();
+    Model *gorundTileModel = &tileModels.back();
 
-    Tile tileAtLeftBorder(-123, 0, glm::vec2(1.0f, 1.0f), TILE_SOLID, testModel);
-    Tile tileAtRightBorder(123, 0, glm::vec2(1.0f, 1.0f), TILE_SOLID, testModel);
-    addTile(tileAtLeftBorder);
-    addTile(tileAtRightBorder);
+    unsigned int seed = 123;
+    unsigned int tile_size = 16;
+    unsigned int perlinWidth = levelWidth / tile_size;
+    unsigned int perlinHeight = levelHeight / tile_size;
+    Perlin2D noiseMap(perlinWidth, perlinHeight, seed);
 
-    // Generate random sized blocks to random locations
-    unsigned int seed = 1337;
-    srand(seed);
-    for (int block = 0; block < 200; block++) {
-        int x = rand() % (int)(rightBound + 1);
-        x = rand() % 2 == 0 ? x : -x;
-        int y = rand() % (int)(topBound + 1);
-        int blockWidth = rand() % 15;
-        int blockHeight = rand() % 8;
-        for (int xOffset = 0; xOffset < blockWidth && x + xOffset <= rightBound; xOffset++) {
-            for (int yOffset = 0; yOffset < blockHeight && y + yOffset <= topBound; yOffset++) {
-                Tile generatedTile(x + xOffset, y + yOffset, glm::vec2(1.0f, 1.0f), TILE_SOLID, testModel);
+    float pivotValueForTile = 0.0f;
+    for (int level_x = leftBound; level_x <= rightBound; level_x++) {
+        for (int level_y = bottomBound; level_y <= topBound; level_y++) {
+            float noiseValue = noiseMap.getNoise((level_x - leftBound) / tile_size, (level_y - bottomBound) / tile_size);
+            if (noiseValue > pivotValueForTile) {
+                Tile generatedTile(level_x, level_y, glm::vec2(1.0f, 1.0f), TILE_SOLID, gorundTileModel);
                 addTile(generatedTile);
             }
         }
