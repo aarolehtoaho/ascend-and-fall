@@ -40,6 +40,7 @@ add_executable(AscendAndFall
     src/Tile.cpp
     src/Collision.cpp
     src/Hud.cpp
+    src/Perlin2D.cpp
 )
 
 target_link_libraries(AscendAndFall 
