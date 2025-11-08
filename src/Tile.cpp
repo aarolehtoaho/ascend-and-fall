@@ -1,6 +1,8 @@
 #include "Tile.h"
 
 #include "Model.h"
+#include "Texture.h"
+#include "Renderer.h"
 #include "Shader.h"
 #include "Player.h"
 
@@ -14,6 +16,15 @@ Tile::Tile(int posX, int posY, glm::vec2 size, TileType type, Model* model)
     aabb.minY = positionY - size.y / 2.0;
     aabb.maxX = positionX + size.x / 2.0;
     aabb.maxY = positionY + size.y / 2.0;
+    modelSet = true;
+}
+Tile::Tile(int posX, int posY, glm::vec2 size, TileType type, Texture *texture, Texture *textureSpecular)
+    : positionX(posX), positionY(posY), size(size), type(type), texture(texture), textureSpecular(textureSpecular) {
+    tileID = tileCount++;
+    aabb.minX = positionX - size.x / 2.0;
+    aabb.minY = positionY - size.y / 2.0;
+    aabb.maxX = positionX + size.x / 2.0;
+    aabb.maxY = positionY + size.y / 2.0;
 }
 
 void Tile::render(Shader *shader) {
@@ -22,6 +33,19 @@ void Tile::render(Shader *shader) {
     setLights(shader);
     
     model->draw(*shader, glm::vec3(positionX, positionY, 0.0f), 0.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+}
+
+void Tile::render(Renderer *renderer, Shader *shader) {
+    shader->use();
+
+    shader->setInt("material.diffuse", texture->getUnit());
+    shader->setInt("material.specular", textureSpecular->getUnit());
+
+    texture->bind();
+    textureSpecular->bind();
+    setLights(shader);
+
+    renderer->drawCube(*shader, glm::vec3(positionX, positionY, 0.0f));
 }
 
 void Tile::setLights(Shader *shader) {

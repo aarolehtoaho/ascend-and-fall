@@ -65,7 +65,7 @@ void Level::createForest() {
     unsigned int levelHeight = topBound - bottomBound;
 
     tileModels.emplace_back("assets/models/groundTile/groundTile.obj");
-    Model *gorundTileModel = &tileModels.back();
+    Model *groundTileModel = &tileModels.back();
 
     unsigned int seed = 123;
     unsigned int tile_size = 16;
@@ -78,7 +78,7 @@ void Level::createForest() {
         for (int level_y = bottomBound; level_y <= topBound; level_y++) {
             float noiseValue = noiseMap.getNoise((level_x - leftBound) / tile_size, (level_y - bottomBound) / tile_size);
             if (noiseValue > pivotValueForTile) {
-                Tile generatedTile(level_x, level_y, glm::vec2(1.0f, 1.0f), TILE_SOLID, gorundTileModel);
+                Tile generatedTile(level_x, level_y, glm::vec2(1.0f, 1.0f), TILE_SOLID, groundTileModel);
                 addTile(generatedTile);
             }
         }
@@ -91,7 +91,11 @@ void Level::render(Renderer *renderer, Camera *camera, glm::vec3 playerPosition)
 
     for (auto& chunk: renderedChunks) {
         for (Tile& tile: chunkTiles[chunk]) {
-            tile.render(&modelShader);
+            if (tile.hasModel()) {
+                tile.render(&modelShader);
+            } else {
+                tile.render(renderer, &shapeShader);
+            }
         }
     }
 }
@@ -158,5 +162,5 @@ void Level::renderBackground(Renderer* renderer, Shader *shader) {
     shader->setPointLight(0, glm::vec3(1.0f), glm::vec3(0.05f), glm::vec3(0.8f), glm::vec3(1.0f), glm::vec3(1.0f, 0.09f, 0.032f));
     shader->setSpotLight(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(1.0f, 0.09f, 0.032f), glm::vec2(glm::cos(glm::radians(0.0f)), glm::cos(glm::radians(0.0f))));
 
-    renderer->drawSquare(*shader, glm::vec3(0.0f, 255.0f, -100.0f), glm::vec3(630.0f, 680.0f, 1.0f));    
+    renderer->drawSquare(*shader, glm::vec3(0.0f, 255.0f, -100.0f), glm::vec3(630.0f, 680.0f, 1.0f));
 }
