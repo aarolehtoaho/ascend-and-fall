@@ -42,10 +42,15 @@ Level::Level(levelName name, Player *player)
     }
 }
 
-void Level::addTile(Tile tile) {
+bool Level::addTile(Tile tile) {
     std::pair<int, int> chunkCoords = getChunkCoordinates(tile.getPositionX(), tile.getPositionY());
-    chunkTiles[chunkCoords].push_back(tile);
+    std::pair<int, int> tileCoords;
+    tileCoords.first = tile.getPositionX();
+    tileCoords.second = tile.getPositionY();
+    bool tileAdded = chunkTiles[chunkCoords].insert_or_assign(tileCoords, std::move(tile)).second;
+    return tileAdded;
 }
+
 void Level::addEntity(Entity entity) {
     std::pair<int, int> chunkCoords = getChunkCoordinates(entity.getPosition().x, entity.getPosition().y);
     chunkEntities[chunkCoords].push_back(entity);
@@ -69,13 +74,13 @@ void Level::createForest() {
     tileModels.emplace_back("assets/models/groundTile/groundTile.obj");
     Model *groundTileModel = &tileModels.back();
 
-    unsigned int seed = 123;
-    unsigned int tile_size = 16;
+    unsigned int seed = 1337;
+    unsigned int tile_size = 8;
     unsigned int perlinWidth = levelWidth / tile_size;
     unsigned int perlinHeight = levelHeight / tile_size;
     Perlin2D noiseMap(perlinWidth, perlinHeight, seed);
 
-    float pivotValueForTile = 0.0f;
+    float pivotValueForTile = 0.1f;
     for (int level_x = leftBound; level_x <= rightBound; level_x++) {
         for (int level_y = bottomBound; level_y <= topBound; level_y++) {
             float noiseValue = noiseMap.getNoise((level_x - leftBound) / tile_size, (level_y - bottomBound) / tile_size);
@@ -93,7 +98,8 @@ void Level::render(Renderer *renderer, Camera *camera, glm::vec3 playerPosition)
     std::set<std::pair<int, int>> renderedChunks = chunksToRender(camera);
 
     for (auto& chunk: renderedChunks) {
-        for (Tile& tile: chunkTiles[chunk]) {
+        for (auto& tilePair: chunkTiles[chunk]) {
+            Tile& tile = tilePair.second;
             if (tile.hasModel()) {
                 tile.render(&modelShader);
             } else {
@@ -119,7 +125,8 @@ void Level::checkCollisions(Entity *entity) {
     nearbyChuncks.insert(getChunkCoordinates(entityAABB.maxX, entityAABB.maxY));
 
     for (auto& chunk: nearbyChuncks) {
-        for (Tile& tile: chunkTiles[chunk]) {
+        for (auto& tilePair: chunkTiles[chunk]) {
+            Tile& tile = tilePair.second;
             if (tile.getAABB().intersects(entityAABB)) {
                 entity->handleCollision(&tile);
             }

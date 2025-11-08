@@ -55,10 +55,14 @@ private:
 
     Player *player;
 
-    std::unordered_map<std::pair<int, int>, std::vector<Entity>, PairHash> chunkEntities;
-    std::unordered_map<std::pair<int, int>, std::vector<Tile>, PairHash> chunkTiles;
+    std::unordered_map<std::pair<int, int>, 
+                       std::vector<Entity>, 
+                       PairHash> chunkEntities;
+    std::unordered_map<std::pair<int, int>, 
+                       std::unordered_map<std::pair<int, int>, Tile, PairHash>, 
+                       PairHash> chunkTiles;
     
-    void addTile(Tile tile);
+    bool addTile(Tile tile);
     void addEntity(Entity entity);
 
     std::pair<int, int> getChunkCoordinates(float posX, float posY) const;
