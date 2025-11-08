@@ -19,7 +19,9 @@ Level::Level(levelName name, Player *player)
               modelShader("assets/shaders/modelshader.vs", "assets/shaders/modelshader.fs"),
               backgroundTexture("assets/textures/background_forest.jpg"),
               backgroundSpecularTexture("assets/textures/no_specular.png"),
-              player(player) {
+              player(player),
+              groundTexture("assets/textures/container.png"),
+              groundSpecularTexture("assets/textures/container_specular.png") {
     Tile::setPlayer(player);
 
     switch (name) {
@@ -78,7 +80,8 @@ void Level::createForest() {
         for (int level_y = bottomBound; level_y <= topBound; level_y++) {
             float noiseValue = noiseMap.getNoise((level_x - leftBound) / tile_size, (level_y - bottomBound) / tile_size);
             if (noiseValue > pivotValueForTile) {
-                Tile generatedTile(level_x, level_y, glm::vec2(1.0f, 1.0f), TILE_SOLID, groundTileModel);
+                //Tile generatedTile(level_x, level_y, glm::vec2(1.0f, 1.0f), TILE_SOLID, groundTileModel);
+                Tile generatedTile(level_x, level_y, glm::vec2(1.0f, 1.0f), TILE_SOLID);
                 addTile(generatedTile);
             }
         }
@@ -94,7 +97,7 @@ void Level::render(Renderer *renderer, Camera *camera, glm::vec3 playerPosition)
             if (tile.hasModel()) {
                 tile.render(&modelShader);
             } else {
-                tile.render(renderer, &shapeShader);
+                tile.render(renderer, &shapeShader, &groundTexture, &groundSpecularTexture);
             }
         }
     }

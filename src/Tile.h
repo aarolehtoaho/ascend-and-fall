@@ -34,14 +34,12 @@ private:
 
     Model *model;
     bool modelSet = false;
-    Texture *texture;
-    Texture *textureSpecular;
 
     glm::vec3 getDrawingPosition();
     void setLights(Shader *shader);
 public:
     Tile(int posX, int posY, glm::vec2 size, TileType type, Model *model);
-    Tile(int posX, int posY, glm::vec2 size, TileType type, Texture *texture, Texture *textureSpecular);
+    Tile(int posX, int posY, glm::vec2 size, TileType type);
 
     int getTileID() const { return tileID; }
     int getPositionX() const { return positionX; }
@@ -51,7 +49,7 @@ public:
     bool hasModel() const { return modelSet; }
 
     void render(Shader *shader);
-    void render(Renderer *renderer, Shader *shader);
+    void render(Renderer *renderer, Shader *shader, Texture *texture, Texture *textureSpecular);
 
     static void setPlayer(Player *p) { player = p; }
 };

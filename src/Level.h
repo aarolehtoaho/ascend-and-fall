@@ -48,6 +48,8 @@ private:
     Shader shapeShader;
     Texture backgroundTexture;
     Texture backgroundSpecularTexture;
+    Texture groundTexture;
+    Texture groundSpecularTexture;
     std::vector<Model> tileModels;
     std::vector<Model> entityModels;
 

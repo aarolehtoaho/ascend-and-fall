@@ -18,8 +18,8 @@ Tile::Tile(int posX, int posY, glm::vec2 size, TileType type, Model* model)
     aabb.maxY = positionY + size.y / 2.0;
     modelSet = true;
 }
-Tile::Tile(int posX, int posY, glm::vec2 size, TileType type, Texture *texture, Texture *textureSpecular)
-    : positionX(posX), positionY(posY), size(size), type(type), texture(texture), textureSpecular(textureSpecular) {
+Tile::Tile(int posX, int posY, glm::vec2 size, TileType type)
+    : positionX(posX), positionY(posY), size(size), type(type) {
     tileID = tileCount++;
     aabb.minX = positionX - size.x / 2.0;
     aabb.minY = positionY - size.y / 2.0;
@@ -35,7 +35,7 @@ void Tile::render(Shader *shader) {
     model->draw(*shader, glm::vec3(positionX, positionY, 0.0f), 0.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
-void Tile::render(Renderer *renderer, Shader *shader) {
+void Tile::render(Renderer *renderer, Shader *shader, Texture *texture, Texture *textureSpecular) {
     shader->use();
 
     shader->setInt("material.diffuse", texture->getUnit());
@@ -45,7 +45,10 @@ void Tile::render(Renderer *renderer, Shader *shader) {
     textureSpecular->bind();
     setLights(shader);
 
-    renderer->drawCube(*shader, glm::vec3(positionX, positionY, 0.0f));
+    float zFightAdjustment = 0.001f;
+    renderer->drawCube( *shader,
+                        glm::vec3(positionX, positionY, 0.0f),
+                        glm::vec3(1.0f - zFightAdjustment));
 }
 
 void Tile::setLights(Shader *shader) {
