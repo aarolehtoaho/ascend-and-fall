@@ -20,8 +20,8 @@ Level::Level(levelName name, Player *player)
               backgroundTexture("assets/textures/background_forest.jpg"),
               backgroundSpecularTexture("assets/textures/no_specular.png"),
               player(player),
-              groundTexture("assets/textures/container.png"),
-              groundSpecularTexture("assets/textures/container_specular.png") {
+              groundTexture("assets/textures/ground.png"),
+              groundSpecularTexture("assets/textures/no_specular.png") {
     Tile::setPlayer(player);
 
     switch (name) {
@@ -102,7 +102,7 @@ void Level::createForest() {
     }
 }
 void Level::render(Renderer *renderer, Camera *camera, glm::vec3 playerPosition) {
-    renderBackground(renderer, &shapeShader);
+    renderBackground(renderer, &shapeShader, camera);
 
     std::set<std::pair<int, int>> renderedChunks = chunksToRender(camera);
 
@@ -169,7 +169,7 @@ std::set<std::pair<int, int>> Level::chunksToRender(Camera *camera) {
     return result;
 }
 
-void Level::renderBackground(Renderer* renderer, Shader *shader) {
+void Level::renderBackground(Renderer* renderer, Shader *shader, Camera *camera) {
     shader->use();
 
     shader->setInt("material.diffuse", backgroundTexture.getUnit());
@@ -177,9 +177,18 @@ void Level::renderBackground(Renderer* renderer, Shader *shader) {
     backgroundTexture.bind();
     backgroundSpecularTexture.bind();
 
-    shader->setDirLight(glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.05f), glm::vec3(1.0f), glm::vec3(0.0f));
-    shader->setPointLight(0, glm::vec3(1.0f), glm::vec3(0.05f), glm::vec3(0.8f), glm::vec3(1.0f), glm::vec3(1.0f, 0.09f, 0.032f));
-    shader->setSpotLight(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(1.0f, 0.09f, 0.032f), glm::vec2(glm::cos(glm::radians(0.0f)), glm::cos(glm::radians(0.0f))));
+    shader->setDirLight(glm::vec3(0.0f, 0.0f, -1.0f),
+                        glm::vec3(0.05f),
+                        glm::vec3(0.7f),
+                        glm::vec3(0.0f));
+    shader->setPointLight(0, glm::vec3(0.0f), glm::vec3(0.00f), glm::vec3(0.0f), glm::vec3(0.0f), glm::vec3(1.0f, 0.09f, 0.032f));
+    shader->setSpotLight(player->getPosition(), 
+                        glm::normalize(player->getPosition() - camera->getPosition()),
+                        glm::vec3(0.0f),
+                        glm::vec3(0.0f), // spotlight disabled
+                        glm::vec3(1.0f),
+                        glm::vec3(1.0f, 0.0f, 0.0f),
+                        glm::vec2(glm::cos(glm::radians(8.0f)), glm::cos(glm::radians(20.0f))));
 
     renderer->drawSquare(*shader, glm::vec3(0.0f, 255.0f, -100.0f), glm::vec3(630.0f, 680.0f, 1.0f));
 }

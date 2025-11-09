@@ -71,7 +71,7 @@ private:
     bool chunkInsideBounds(int chunkX, int chunkY);
 
     void createForest();
-    void renderBackground(Renderer *renderer, Shader *shader);
+    void renderBackground(Renderer *renderer, Shader *shader, Camera *camera);
 
     static Logger logger;
 public:
