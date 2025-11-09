@@ -133,6 +133,10 @@ void Level::checkCollisions(Entity *entity) {
     nearbyChuncks.insert(getChunkCoordinates(entityAABB.maxX, entityAABB.minY));
     nearbyChuncks.insert(getChunkCoordinates(entityAABB.maxX, entityAABB.maxY));
 
+    // This fixes a bug which occurs in some chunk boundaries
+    nearbyChuncks.insert(getChunkCoordinates(ceil(entityAABB.maxX), entityAABB.minY));
+    nearbyChuncks.insert(getChunkCoordinates(ceil(entityAABB.maxX), entityAABB.maxY));
+
     for (auto& chunk: nearbyChuncks) {
         for (auto& tilePair: chunkTiles[chunk]) {
             Tile& tile = tilePair.second;
