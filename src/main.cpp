@@ -28,7 +28,7 @@ int main() {
     Hud* hud = window->getHud();
     Renderer renderer(camera);
 
-    Model playerModel("assets/models/player/player_texture.obj");
+    Model playerModel("assets/models/player/player.obj");
     Player player(glm::vec3(0.0f, 5.0f, 0.0f), &playerModel);
 
     Level level(FOREST, &player);
