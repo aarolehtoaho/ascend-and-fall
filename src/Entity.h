@@ -7,8 +7,9 @@
 
 extern const float PHYSICAL, POISON, ICE, FIRE, SOUL;
 extern const float FORCE_ADJUSTMENT;
-extern const glm::vec3 GRAVITY;
+extern const float IMPULSE_ADJUSTMENT;
 extern const float GRAVITY_ADJUSTMENT;
+extern const glm::vec3 GRAVITY;
 extern const float ROTATE_SPEED;
 
 class Tile;

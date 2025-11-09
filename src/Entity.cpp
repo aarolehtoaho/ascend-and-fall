@@ -6,8 +6,8 @@ Entity::Entity(glm::vec3 position, float height, float width, Model *model, glm:
              : position(position), height(height), width(width), model(model), modelOffset(modelOffset) {
     velocity = glm::vec3(0.0f);
     acceleration = glm::vec3(0.0f);
-    mass = 10.0f;
-    movementSpeed = 6.0f;
+    mass = 5.0f;
+    movementSpeed = 7.0f;
     health = 100.0f;
     attackPower = 10.0f;
 }
@@ -20,7 +20,7 @@ void Entity::applyForce(glm::vec3 force) {
 void Entity::applyImpulse(glm::vec3 impulse) {
     // Used for instantaneous forces, such as a jump or a hit.
     // Impulse is applied directly to the velocity.
-    velocity += (FORCE_ADJUSTMENT * impulse) / mass;
+    velocity += (IMPULSE_ADJUSTMENT * impulse) / mass;
 }
 void Entity::applyFriction(float deltaTime) {
     float resistanceMagnitude = mass * deltaTime;
@@ -178,6 +178,7 @@ const float FIRE = 0;
 const float SOUL = 0;
 
 const float FORCE_ADJUSTMENT = 150.0f;
-const float GRAVITY_ADJUSTMENT = 1.0f;
+const float IMPULSE_ADJUSTMENT = 80.0f;
+const float GRAVITY_ADJUSTMENT = 2.0f;
 const glm::vec3 GRAVITY = glm::vec3(0.0f, -9.81f, 0.0f) * GRAVITY_ADJUSTMENT;
 const float ROTATE_SPEED = 150.0f;
