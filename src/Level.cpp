@@ -8,19 +8,21 @@
 #include "Perlin2D.h"
 
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 Logger Level::logger("debug.log");
 
-const int CHUNK_SIZE = 16;
+const int CHUNK_SIZE = 8;
 
 Level::Level(levelName name, Player *player)
             : name(name),
               shapeShader("assets/shaders/shape_phong.vs", "assets/shaders/shape_phong.fs"),
+              groundShader("assets/shaders/instancedshader.vs", "assets/shaders/shape_phong.fs"),
               modelShader("assets/shaders/modelshader.vs", "assets/shaders/modelshader.fs"),
               backgroundTexture("assets/textures/background_forest.jpg"),
               backgroundSpecularTexture("assets/textures/no_specular.png"),
               player(player),
-              groundTexture("assets/textures/ground.png"),
+              groundTexture("assets/textures/ground.jpg"),
               groundSpecularTexture("assets/textures/no_specular.png") {
     Tile::setPlayer(player);
 
@@ -52,7 +54,13 @@ bool Level::addTile(Tile tile) {
 Tile* Level::getTile(int x, int y) {
     std::pair<int, int> chunkCoords = getChunkCoordinates(x, y);
     std::pair<int, int> tileCoords = {x, y};
-    auto tileMap = chunkTiles[chunkCoords];
+
+    auto chunkIt = chunkTiles.find(chunkCoords);
+    if (chunkIt == chunkTiles.end()) {
+        return nullptr;
+    }
+
+    auto tileMap = chunkIt->second;
     auto result = tileMap.find(tileCoords);
     if (result == tileMap.end()) {
         return nullptr;
@@ -93,8 +101,8 @@ void Level::createForest() {
     for (int level_x = leftBound; level_x <= rightBound; level_x++) {
         for (int level_y = bottomBound; level_y <= topBound; level_y++) {
             float noiseValue = noiseMap.getNoise((level_x - leftBound) / tile_size, (level_y - bottomBound) / tile_size);
-            if (noiseValue > pivotValueForTile) {
-                //Tile generatedTile(level_x, level_y, glm::vec2(1.0f, 1.0f), TILE_SOLID, groundTileModel);
+            bool isBorderTile = level_x == leftBound || level_x == rightBound || level_y == bottomBound || level_y == topBound;
+            if (noiseValue > pivotValueForTile || isBorderTile) {
                 Tile generatedTile(level_x, level_y, glm::vec2(1.0f, 1.0f), TILE_SOLID);
                 addTile(generatedTile);
             }
@@ -106,15 +114,44 @@ void Level::render(Renderer *renderer, Camera *camera, glm::vec3 playerPosition)
 
     std::set<std::pair<int, int>> renderedChunks = chunksToRender(camera);
 
+    std::vector<glm::mat4> groundTileModels;
+    groundTileModels.reserve(renderedChunks.size() * CHUNK_SIZE * CHUNK_SIZE);
+
     for (auto& chunk: renderedChunks) {
-        for (auto& tilePair: chunkTiles[chunk]) {
+        auto chunkTileIt = chunkTiles.find(chunk);
+        if (chunkTileIt == chunkTiles.end()) {
+            continue;
+        }
+        for (auto& tilePair: chunkTileIt->second) {
             Tile& tile = tilePair.second;
             if (tile.hasModel()) {
                 tile.render(&modelShader);
             } else {
-                tile.render(renderer, &shapeShader, &groundTexture, &groundSpecularTexture);
+                glm::mat4 model = glm::mat4(1.0f);
+                model = glm::translate(model, glm::vec3(tile.getPositionX(), tile.getPositionY(), 0.0f));
+                groundTileModels.push_back(model);
             }
         }
+    }
+    if (!groundTileModels.empty()) {
+        groundShader.use();
+
+        groundShader.setMat4("view", camera->getViewMatrix());
+        groundShader.setMat4("projection", camera->getProjectionMatrix());
+        groundShader.setVec3("viewPos", camera->getPosition());
+
+        groundShader.setInt("material.diffuse", groundTexture.getUnit());
+        groundShader.setInt("material.specular", groundSpecularTexture.getUnit());
+        groundTexture.bind();
+        groundSpecularTexture.bind();
+
+        groundShader.setDirLight(glm::vec3(0.2f, -0.3f, -1.0f), glm::vec3(0.05f), glm::vec3(0.5f), glm::vec3(0.5f));
+        groundShader.setPointLight(0, playerPosition + glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.01f), glm::vec3(0.95f), glm::vec3(1.0f), glm::vec3(1.0f, 0.09f, 0.032f));
+        groundShader.setSpotLight(playerPosition + glm::vec3(-3.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(1.0f, 0.09f, 0.032f), glm::vec2(glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(15.0f))));
+        groundShader.setFloat("shininess", 0.5f * 128.0f);
+
+        renderer->updateInstanceBuffer(groundTileModels);
+        renderer->drawCubesInstanced(groundTileModels.size());
     }
 }
 
@@ -129,16 +166,18 @@ void Level::checkCollisions(Entity *entity) {
 
     std::set<std::pair<int, int>> nearbyChuncks;
     nearbyChuncks.insert(getChunkCoordinates(entityAABB.minX, entityAABB.minY));
-    nearbyChuncks.insert(getChunkCoordinates(entityAABB.minX, entityAABB.maxY));
+    nearbyChuncks.insert(getChunkCoordinates(entityAABB.minX, ceil(entityAABB.maxY)));
     nearbyChuncks.insert(getChunkCoordinates(entityAABB.maxX, entityAABB.minY));
-    nearbyChuncks.insert(getChunkCoordinates(entityAABB.maxX, entityAABB.maxY));
-
-    // This fixes a bug which occurs in some chunk boundaries
+    nearbyChuncks.insert(getChunkCoordinates(entityAABB.maxX, ceil(entityAABB.maxY)));
     nearbyChuncks.insert(getChunkCoordinates(ceil(entityAABB.maxX), entityAABB.minY));
     nearbyChuncks.insert(getChunkCoordinates(ceil(entityAABB.maxX), entityAABB.maxY));
 
     for (auto& chunk: nearbyChuncks) {
-        for (auto& tilePair: chunkTiles[chunk]) {
+        auto chunkTileIt = chunkTiles.find(chunk);
+        if (chunkTileIt == chunkTiles.end()) {
+            continue;
+        }
+        for (auto& tilePair: chunkTileIt->second) {
             Tile& tile = tilePair.second;
             if (tile.getAABB().intersects(entityAABB)) {
                 entity->handleCollision(&tile);
@@ -148,7 +187,10 @@ void Level::checkCollisions(Entity *entity) {
 }
 
 bool Level::chunkInsideBounds(int chunkX, int chunkY) {
-    return (chunkX >= floor(leftBound / CHUNK_SIZE) && chunkX <= floor(rightBound / CHUNK_SIZE) && chunkY >= floor(bottomBound / CHUNK_SIZE) && chunkY <= floor(topBound / CHUNK_SIZE));
+    return (chunkX >= floor(leftBound / CHUNK_SIZE) &&
+            chunkX <= floor(rightBound / CHUNK_SIZE) &&
+            chunkY >= floor(bottomBound / CHUNK_SIZE) &&
+            chunkY <= floor(topBound / CHUNK_SIZE));
 }
 
 std::set<std::pair<int, int>> Level::chunksToRender(Camera *camera) {

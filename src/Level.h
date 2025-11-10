@@ -46,6 +46,7 @@ private:
 
     Shader modelShader;
     Shader shapeShader;
+    Shader groundShader;
     Texture backgroundTexture;
     Texture backgroundSpecularTexture;
     Texture groundTexture;

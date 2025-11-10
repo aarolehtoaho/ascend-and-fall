@@ -3,8 +3,12 @@
 
 #include "glm/glm.hpp"
 
+#include <vector>
+
 #include "Shader.h"
 #include "Camera.h"
+
+#define MAX_INSTANCES 10000
 
 class Renderer {
 private:
@@ -13,6 +17,7 @@ private:
 
     unsigned int VBO_S, VBO_C;
     unsigned int VAO_S, VAO_C;
+    unsigned int instanceVBO;
 
     Camera* camera;
 
@@ -41,5 +46,8 @@ public:
                   glm::vec3 scale = glm::vec3(1.0f), \
                   glm::vec3 rotation = glm::vec3(1.0f, 0.0f, 0.0f), \
                   float angle = 0.0f);
+    
+    void updateInstanceBuffer(const std::vector<glm::mat4>& models);
+    void drawCubesInstanced(int count);
 };
 #endif

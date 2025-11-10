@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <vector>
 
 #include "Renderer.h"
 #include "Texture.h"
@@ -78,11 +79,24 @@ void Renderer::drawCube(Shader& shader, \
     glDrawArrays(GL_TRIANGLES, 0, 36);
 };
 
+void Renderer::drawCubesInstanced(int count) {
+    glBindVertexArray(VAO_C);
+    glDrawArraysInstanced(GL_TRIANGLES, 0, 36, count);
+    glBindVertexArray(0);
+}
+
+void Renderer::updateInstanceBuffer(const std::vector<glm::mat4>& models) {
+    glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, models.size() * sizeof(glm::mat4), models.data());
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
 void Renderer::init() {
     glGenVertexArrays(1, &VAO_S);
     glGenVertexArrays(1, &VAO_C);
     glGenBuffers(1, &VBO_S);
     glGenBuffers(1, &VBO_C);
+    glGenBuffers(1, &instanceVBO);
 
     // square
     glBindVertexArray(VAO_S);
@@ -113,6 +127,26 @@ void Renderer::init() {
 
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
     glEnableVertexAttribArray(2);
+
+    // instance VBO
+    glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+    glBufferData(GL_ARRAY_BUFFER, MAX_INSTANCES * sizeof(glm::mat4), nullptr, GL_DYNAMIC_DRAW);
+
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)0);
+    glEnableVertexAttribArray(4);
+    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(sizeof(glm::vec4)));
+    glEnableVertexAttribArray(5);
+    glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(2 * sizeof(glm::vec4)));
+    glEnableVertexAttribArray(6);
+    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*)(3 * sizeof(glm::vec4)));
+
+    glVertexAttribDivisor(3, 1);
+    glVertexAttribDivisor(4, 1);
+    glVertexAttribDivisor(5, 1);
+    glVertexAttribDivisor(6, 1);
+
+    glBindVertexArray(0);
 };
 
 const float Renderer::SQUARE_VERTICES[] = {
@@ -175,4 +209,5 @@ Renderer::~Renderer() {
     glDeleteVertexArrays(1, &VAO_C);
     glDeleteBuffers(1, &VBO_S);
     glDeleteBuffers(1, &VBO_C);
+    glDeleteBuffers(1, &instanceVBO);
 }
