@@ -28,6 +28,7 @@ private:
     int tileID;
     int positionX;
     int positionY;
+    int positionZ;
     glm::vec2 size;
     TileType type;
     AABB aabb;
@@ -38,12 +39,13 @@ private:
     glm::vec3 getDrawingPosition();
     void setLights(Shader *shader);
 public:
-    Tile(int posX, int posY, glm::vec2 size, TileType type, Model *model);
-    Tile(int posX, int posY, glm::vec2 size, TileType type);
+    Tile(int posX, int posY, int posZ, glm::vec2 size, TileType type, Model *model);
+    Tile(int posX, int posY, int posZ, glm::vec2 size, TileType type);
 
     int getTileID() const { return tileID; }
     int getPositionX() const { return positionX; }
     int getPositionY() const { return positionY; }
+    int getPositionZ() const { return positionZ; }
     AABB getAABB() const { return aabb; }
     TileType getTileType() const { return type; }
     bool hasModel() const { return modelSet; }

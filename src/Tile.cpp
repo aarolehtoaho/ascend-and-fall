@@ -9,8 +9,8 @@
 int Tile::tileCount = 0;
 Player* Tile::player = nullptr;
 
-Tile::Tile(int posX, int posY, glm::vec2 size, TileType type, Model* model)
-    : positionX(posX), positionY(posY), size(size), type(type), model(model) {
+Tile::Tile(int posX, int posY, int posZ, glm::vec2 size, TileType type, Model* model)
+    : positionX(posX), positionY(posY), positionZ(posZ), size(size), type(type), model(model) {
     tileID = tileCount++;
     aabb.minX = positionX - size.x / 2.0;
     aabb.minY = positionY - size.y / 2.0;
@@ -18,8 +18,8 @@ Tile::Tile(int posX, int posY, glm::vec2 size, TileType type, Model* model)
     aabb.maxY = positionY + size.y / 2.0;
     modelSet = true;
 }
-Tile::Tile(int posX, int posY, glm::vec2 size, TileType type)
-    : positionX(posX), positionY(posY), size(size), type(type) {
+Tile::Tile(int posX, int posY, int posZ, glm::vec2 size, TileType type)
+    : positionX(posX), positionY(posY), positionZ(posZ), size(size), type(type) {
     tileID = tileCount++;
     aabb.minX = positionX - size.x / 2.0;
     aabb.minY = positionY - size.y / 2.0;
@@ -32,7 +32,7 @@ void Tile::render(Shader *shader) {
 
     setLights(shader);
     
-    model->draw(*shader, glm::vec3(positionX, positionY, 0.0f), 0.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+    model->draw(*shader, glm::vec3(positionX, positionY, positionZ), 0.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 }
 
 void Tile::render(Renderer *renderer, Shader *shader, Texture *texture, Texture *textureSpecular) {
@@ -47,7 +47,7 @@ void Tile::render(Renderer *renderer, Shader *shader, Texture *texture, Texture 
 
     float zFightAdjustment = 0.001f;
     renderer->drawCube( *shader,
-                        glm::vec3(positionX, positionY, 0.0f),
+                        glm::vec3(positionX, positionY, positionZ),
                         glm::vec3(1.0f - zFightAdjustment));
 }
 
