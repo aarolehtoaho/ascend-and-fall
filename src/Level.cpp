@@ -88,8 +88,11 @@ void Level::createForest() {
     unsigned int levelWidth = rightBound - leftBound;
     unsigned int levelHeight = topBound - bottomBound;
 
-    tileModels.emplace_back("assets/models/groundTile/groundTile.obj");
-    Model *groundTileModel = &tileModels.back();
+    //tileModels.reserve(2);
+    //tileModels.emplace_back("assets/models/groundTile/groundTile.obj");
+    //Model *groundTileModel = &tileModels.back();
+    //Tile randomTile(0.0f, 2.0f, glm::vec2(1.0f, 1.0f), TILE_SOLID, groundTileModel);
+    //addTile(randomTile);
 
     unsigned int seed = 1337;
     unsigned int tile_size = 8;
@@ -108,6 +111,11 @@ void Level::createForest() {
             }
         }
     }
+
+    //tileModels.emplace_back("assets/models/gate/base.obj");
+    //Model *gateModel = &tileModels.back();
+    //Tile gate(2.0f, 2.0f, glm::vec2(1.0f, 1.0f), TILE_SOLID, gateModel);
+    //addTile(gate);
 }
 void Level::render(Renderer *renderer, Camera *camera, glm::vec3 playerPosition) {
     renderBackground(renderer, &shapeShader, camera);
