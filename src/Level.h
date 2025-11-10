@@ -27,6 +27,8 @@ struct PairHash {
 };
 
 extern const int CHUNK_SIZE;
+extern const bool FRONT_LAYER;
+extern const bool BACK_LAYER;
 
 class Entity;
 class Logger;
@@ -58,13 +60,16 @@ private:
 
     std::unordered_map<std::pair<int, int>, 
                        std::vector<Entity>, 
-                       PairHash> chunkEntities;
+                       PairHash> entityChunks;
     std::unordered_map<std::pair<int, int>, 
                        std::unordered_map<std::pair<int, int>, Tile, PairHash>, 
-                       PairHash> chunkTiles;
+                       PairHash> frontLayerChunks;
+    std::unordered_map<std::pair<int, int>, 
+                       std::unordered_map<std::pair<int, int>, Tile, PairHash>, 
+                       PairHash> backLayerChunks;
     
-    bool addTile(Tile tile);
-    Tile* getTile(int x, int y);
+    bool addTile(Tile tile, bool layer);
+    Tile* getTile(int x, int y, bool layer);
     void addEntity(Entity entity);
 
     std::pair<int, int> getChunkCoordinates(float posX, float posY) const;
@@ -73,13 +78,15 @@ private:
 
     void createForest();
     void renderBackground(Renderer *renderer, Shader *shader, Camera *camera);
+    void renderInstancedTiles(Renderer *renderer, Camera *camera, std::vector<glm::mat4> *groundTileModels);
+    void addTileModels(std::vector<glm::mat4> *groundTileModels, Camera *camera);
 
     static Logger logger;
 public:
     Level(levelName name, Player *player);
     levelName getName() const { return name; }
 
-    void render(Renderer *renderer, Camera *camera, glm::vec3 playerPosition);
+    void render(Renderer *renderer, Camera *camera);
     void update();
     void checkCollisions(Entity *entity);
 };

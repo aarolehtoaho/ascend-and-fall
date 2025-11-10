@@ -13,6 +13,8 @@
 Logger Level::logger("debug.log");
 
 const int CHUNK_SIZE = 8;
+const bool FRONT_LAYER = true;
+const bool BACK_LAYER = true;
 
 Level::Level(levelName name, Player *player)
             : name(name),
@@ -44,19 +46,21 @@ Level::Level(levelName name, Player *player)
     }
 }
 
-bool Level::addTile(Tile tile) {
+bool Level::addTile(Tile tile, bool layer = FRONT_LAYER) {
     std::pair<int, int> chunkCoords = getChunkCoordinates(tile.getPositionX(), tile.getPositionY());
     std::pair<int, int> tileCoords = {tile.getPositionX(), tile.getPositionY()};
-    bool tileAdded = chunkTiles[chunkCoords].emplace(tileCoords, std::move(tile)).second;
+    bool tileAdded = (FRONT_LAYER ? frontLayerChunks[chunkCoords] : backLayerChunks[chunkCoords])
+                        .emplace(tileCoords, std::move(tile)).second;
     return tileAdded;
 }
 
-Tile* Level::getTile(int x, int y) {
+Tile* Level::getTile(int x, int y, bool layer = FRONT_LAYER) {
     std::pair<int, int> chunkCoords = getChunkCoordinates(x, y);
     std::pair<int, int> tileCoords = {x, y};
 
-    auto chunkIt = chunkTiles.find(chunkCoords);
-    if (chunkIt == chunkTiles.end()) {
+    auto chunkIt = FRONT_LAYER ? frontLayerChunks.find(chunkCoords) : backLayerChunks.find(chunkCoords);
+    auto end = FRONT_LAYER ? frontLayerChunks.end() : backLayerChunks.end();
+    if (chunkIt == end) {
         return nullptr;
     }
 
@@ -70,7 +74,7 @@ Tile* Level::getTile(int x, int y) {
 
 void Level::addEntity(Entity entity) {
     std::pair<int, int> chunkCoords = getChunkCoordinates(entity.getPosition().x, entity.getPosition().y);
-    chunkEntities[chunkCoords].push_back(entity);
+    entityChunks[chunkCoords].push_back(entity);
 }
 
 std::pair<int, int> Level::getChunkCoordinates(float posX, float posY) const {
@@ -88,7 +92,7 @@ void Level::createForest() {
     unsigned int levelWidth = rightBound - leftBound;
     unsigned int levelHeight = topBound - bottomBound;
 
-    //tileModels.reserve(2);
+    tileModels.reserve(2);
     //tileModels.emplace_back("assets/models/groundTile/groundTile.obj");
     //Model *groundTileModel = &tileModels.back();
     //Tile randomTile(0.0f, 2.0f, glm::vec2(1.0f, 1.0f), TILE_SOLID, groundTileModel);
@@ -106,60 +110,63 @@ void Level::createForest() {
             float noiseValue = noiseMap.getNoise((level_x - leftBound) / tile_size, (level_y - bottomBound) / tile_size);
             bool isBorderTile = level_x == leftBound || level_x == rightBound || level_y == bottomBound || level_y == topBound;
             if (noiseValue > pivotValueForTile || isBorderTile) {
-                Tile generatedTile(level_x, level_y, glm::vec2(1.0f, 1.0f), TILE_SOLID);
-                addTile(generatedTile);
+                Tile generatedTile(level_x, level_y, 0.0f, glm::vec2(1.0f, 1.0f), TILE_SOLID);
+                addTile(generatedTile, FRONT_LAYER);
+            }
+            if (noiseValue > pivotValueForTile - 0.1f) {
+                Tile backgroundTile(level_x, level_y, -1.0f, glm::vec2(1.0f, 1.0f), TILE_BACKGROUND);
+                addTile(backgroundTile, BACK_LAYER);
             }
         }
     }
 
-    //tileModels.emplace_back("assets/models/gate/base.obj");
-    //Model *gateModel = &tileModels.back();
-    //Tile gate(2.0f, 2.0f, glm::vec2(1.0f, 1.0f), TILE_SOLID, gateModel);
-    //addTile(gate);
+    tileModels.emplace_back("assets/models/gate/base.obj");
+    Model *gateModel = &tileModels.back();
+    Tile gate(2.0f, 2.0f, -1.0f, glm::vec2(1.0f, 1.0f), TILE_BACKGROUND, gateModel);
+    addTile(gate);
 }
-void Level::render(Renderer *renderer, Camera *camera, glm::vec3 playerPosition) {
+void Level::render(Renderer *renderer, Camera *camera) {
     renderBackground(renderer, &shapeShader, camera);
 
-    std::set<std::pair<int, int>> renderedChunks = chunksToRender(camera);
-
     std::vector<glm::mat4> groundTileModels;
-    groundTileModels.reserve(renderedChunks.size() * CHUNK_SIZE * CHUNK_SIZE);
+    addTileModels(&groundTileModels, camera);
+
+    renderInstancedTiles(renderer, camera, &groundTileModels);
+}
+
+void Level::addTileModels(std::vector<glm::mat4> *groundTileModels, Camera *camera) {
+    std::set<std::pair<int, int>> renderedChunks = chunksToRender(camera);
+    groundTileModels->reserve(renderedChunks.size() * CHUNK_SIZE * CHUNK_SIZE * 2);
 
     for (auto& chunk: renderedChunks) {
-        auto chunkTileIt = chunkTiles.find(chunk);
-        if (chunkTileIt == chunkTiles.end()) {
+        auto frontChunkTileIt = frontLayerChunks.find(chunk);
+        if (frontChunkTileIt == frontLayerChunks.end()) {
             continue;
         }
-        for (auto& tilePair: chunkTileIt->second) {
+        for (auto& tilePair: frontChunkTileIt->second) {
             Tile& tile = tilePair.second;
             if (tile.hasModel()) {
                 tile.render(&modelShader);
             } else {
                 glm::mat4 model = glm::mat4(1.0f);
-                model = glm::translate(model, glm::vec3(tile.getPositionX(), tile.getPositionY(), 0.0f));
-                groundTileModels.push_back(model);
+                model = glm::translate(model, glm::vec3(tile.getPositionX(), tile.getPositionY(), tile.getPositionZ()));
+                groundTileModels->push_back(model);
             }
         }
-    }
-    if (!groundTileModels.empty()) {
-        groundShader.use();
-
-        groundShader.setMat4("view", camera->getViewMatrix());
-        groundShader.setMat4("projection", camera->getProjectionMatrix());
-        groundShader.setVec3("viewPos", camera->getPosition());
-
-        groundShader.setInt("material.diffuse", groundTexture.getUnit());
-        groundShader.setInt("material.specular", groundSpecularTexture.getUnit());
-        groundTexture.bind();
-        groundSpecularTexture.bind();
-
-        groundShader.setDirLight(glm::vec3(0.2f, -0.3f, -1.0f), glm::vec3(0.05f), glm::vec3(0.5f), glm::vec3(0.5f));
-        groundShader.setPointLight(0, playerPosition + glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.01f), glm::vec3(0.95f), glm::vec3(1.0f), glm::vec3(1.0f, 0.09f, 0.032f));
-        groundShader.setSpotLight(playerPosition + glm::vec3(-3.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(1.0f, 0.09f, 0.032f), glm::vec2(glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(15.0f))));
-        groundShader.setFloat("shininess", 0.5f * 128.0f);
-
-        renderer->updateInstanceBuffer(groundTileModels);
-        renderer->drawCubesInstanced(groundTileModels.size());
+        auto backChunkTileIt = backLayerChunks.find(chunk);
+        if (backChunkTileIt == backLayerChunks.end()) {
+            continue;
+        }
+        for (auto& tilePair: backChunkTileIt->second) {
+            Tile& tile = tilePair.second;
+            if (tile.hasModel()) {
+                tile.render(&modelShader);
+            } else {
+                glm::mat4 model = glm::mat4(1.0f);
+                model = glm::translate(model, glm::vec3(tile.getPositionX(), tile.getPositionY(), tile.getPositionZ()));
+                groundTileModels->push_back(model);
+            }
+        }
     }
 }
 
@@ -181,8 +188,8 @@ void Level::checkCollisions(Entity *entity) {
     nearbyChuncks.insert(getChunkCoordinates(ceil(entityAABB.maxX), entityAABB.maxY));
 
     for (auto& chunk: nearbyChuncks) {
-        auto chunkTileIt = chunkTiles.find(chunk);
-        if (chunkTileIt == chunkTiles.end()) {
+        auto chunkTileIt = frontLayerChunks.find(chunk);
+        if (chunkTileIt == frontLayerChunks.end()) {
             continue;
         }
         for (auto& tilePair: chunkTileIt->second) {
@@ -222,6 +229,30 @@ std::set<std::pair<int, int>> Level::chunksToRender(Camera *camera) {
 
     return result;
 }
+
+void Level::renderInstancedTiles(Renderer *renderer, Camera *camera, std::vector<glm::mat4> *groundTileModels) {
+    if (!groundTileModels->empty()) {
+        groundShader.use();
+
+        groundShader.setMat4("view", camera->getViewMatrix());
+        groundShader.setMat4("projection", camera->getProjectionMatrix());
+        groundShader.setVec3("viewPos", camera->getPosition());
+
+        groundShader.setInt("material.diffuse", groundTexture.getUnit());
+        groundShader.setInt("material.specular", groundSpecularTexture.getUnit());
+        groundTexture.bind();
+        groundSpecularTexture.bind();
+
+        groundShader.setDirLight(glm::vec3(0.2f, -0.3f, -1.0f), glm::vec3(0.05f), glm::vec3(0.5f), glm::vec3(0.5f));
+        groundShader.setPointLight(0, player->getPosition() + glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.01f), glm::vec3(0.95f), glm::vec3(1.0f), glm::vec3(1.0f, 0.09f, 0.032f));
+        groundShader.setSpotLight(player->getPosition() + glm::vec3(-3.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f), glm::vec3(1.0f), glm::vec3(1.0f), glm::vec3(1.0f, 0.09f, 0.032f), glm::vec2(glm::cos(glm::radians(12.5f)), glm::cos(glm::radians(15.0f))));
+        groundShader.setFloat("shininess", 0.5f * 128.0f);
+
+        renderer->updateInstanceBuffer(*groundTileModels);
+        renderer->drawCubesInstanced(groundTileModels->size());
+    }
+}
+
 
 void Level::renderBackground(Renderer* renderer, Shader *shader, Camera *camera) {
     shader->use();
