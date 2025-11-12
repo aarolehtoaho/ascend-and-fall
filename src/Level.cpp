@@ -14,7 +14,7 @@ Logger Level::logger("debug.log");
 
 const int CHUNK_SIZE = 8;
 const bool FRONT_LAYER = true;
-const bool BACK_LAYER = true;
+const bool BACK_LAYER = false;
 
 Level::Level(levelName name, Player *player)
             : name(name),
@@ -49,7 +49,7 @@ Level::Level(levelName name, Player *player)
 bool Level::addTile(Tile tile, bool layer = FRONT_LAYER) {
     std::pair<int, int> chunkCoords = getChunkCoordinates(tile.getPositionX(), tile.getPositionY());
     std::pair<int, int> tileCoords = {tile.getPositionX(), tile.getPositionY()};
-    bool tileAdded = (FRONT_LAYER ? frontLayerChunks[chunkCoords] : backLayerChunks[chunkCoords])
+    bool tileAdded = (layer ? frontLayerChunks[chunkCoords] : backLayerChunks[chunkCoords])
                         .emplace(tileCoords, std::move(tile)).second;
     return tileAdded;
 }
@@ -110,11 +110,11 @@ void Level::createForest() {
             float noiseValue = noiseMap.getNoise((level_x - leftBound) / tile_size, (level_y - bottomBound) / tile_size);
             bool isBorderTile = level_x == leftBound || level_x == rightBound || level_y == bottomBound || level_y == topBound;
             if (noiseValue > pivotValueForTile || isBorderTile) {
-                Tile generatedTile(level_x, level_y, 0.0f, glm::vec2(1.0f, 1.0f), TILE_SOLID);
+                Tile generatedTile(level_x, level_y, 0, glm::vec2(1.0f, 1.0f), TILE_SOLID);
                 addTile(generatedTile, FRONT_LAYER);
             }
             if (noiseValue > pivotValueForTile - 0.1f) {
-                Tile backgroundTile(level_x, level_y, -1.0f, glm::vec2(1.0f, 1.0f), TILE_BACKGROUND);
+                Tile backgroundTile(level_x, level_y, -1, glm::vec2(1.0f, 1.0f), TILE_BACKGROUND);
                 addTile(backgroundTile, BACK_LAYER);
             }
         }
@@ -140,31 +140,29 @@ void Level::addTileModels(std::vector<glm::mat4> *groundTileModels, Camera *came
 
     for (auto& chunk: renderedChunks) {
         auto frontChunkTileIt = frontLayerChunks.find(chunk);
-        if (frontChunkTileIt == frontLayerChunks.end()) {
-            continue;
-        }
-        for (auto& tilePair: frontChunkTileIt->second) {
-            Tile& tile = tilePair.second;
-            if (tile.hasModel()) {
-                tile.render(&modelShader);
-            } else {
-                glm::mat4 model = glm::mat4(1.0f);
-                model = glm::translate(model, glm::vec3(tile.getPositionX(), tile.getPositionY(), tile.getPositionZ()));
-                groundTileModels->push_back(model);
-            }
+        if (frontChunkTileIt != frontLayerChunks.end()) {
+            for (auto& tilePair: frontChunkTileIt->second) {
+                Tile& tile = tilePair.second;
+                if (tile.hasModel()) {
+                    tile.render(&modelShader);
+                } else {
+                    glm::mat4 model = glm::mat4(1.0f);
+                    model = glm::translate(model, glm::vec3(tile.getPositionX(), tile.getPositionY(), tile.getPositionZ()));
+                    groundTileModels->push_back(model);
+                }
+            }            
         }
         auto backChunkTileIt = backLayerChunks.find(chunk);
-        if (backChunkTileIt == backLayerChunks.end()) {
-            continue;
-        }
-        for (auto& tilePair: backChunkTileIt->second) {
-            Tile& tile = tilePair.second;
-            if (tile.hasModel()) {
-                tile.render(&modelShader);
-            } else {
-                glm::mat4 model = glm::mat4(1.0f);
-                model = glm::translate(model, glm::vec3(tile.getPositionX(), tile.getPositionY(), tile.getPositionZ()));
-                groundTileModels->push_back(model);
+        if (backChunkTileIt != backLayerChunks.end()) {
+            for (auto& tilePair: backChunkTileIt->second) {
+                Tile& tile = tilePair.second;
+                if (tile.hasModel()) {
+                    tile.render(&modelShader);
+                } else {
+                    glm::mat4 model = glm::mat4(1.0f);
+                    model = glm::translate(model, glm::vec3(tile.getPositionX(), tile.getPositionY(), tile.getPositionZ()));
+                    groundTileModels->push_back(model);
+                }
             }
         }
     }
